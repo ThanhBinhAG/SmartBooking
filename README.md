@@ -63,7 +63,7 @@ npm logs
 ```
 
 **Ứng dụng sẽ chạy tại:**
-- 🌐 Frontend: http://localhost
+- 🌐 Frontend: http://localhost:8080/
 - 📡 Backend API: http://localhost:3000
 - 🗄️ PostgreSQL: localhost:5432
 
