@@ -31,6 +31,7 @@ router.patch('/bookings/:id/status',    adminCtrl.updateBookingStatus);
 
 // Quản lý users
 router.get('/users', adminCtrl.getAllUsers);
+router.put('/users/:id/role', adminCtrl.updateUserRole);
 
 // Quản lý thiết bị
 router.get('/equipment', equipmentCtrl.getAllEquipment);

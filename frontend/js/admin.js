@@ -457,9 +457,12 @@ const AdminApp = {
                   <td style="font-size:0.85rem;">${u.email}</td>
                   <td style="font-size:0.85rem;">${u.phone || '—'}</td>
                   <td>
-                    <span class="status-badge ${u.role === 'admin' ? 'status-paid' : 'status-confirmed'}">
-                      ${u.role}
-                    </span>
+                    <select class="form-input" style="width:120px;font-size:0.8rem;padding:4px 8px;"
+                            onchange="AdminApp.updateUserRole('${u.id}', this.value)">
+                      <option value="customer" ${u.role === 'customer' ? 'selected' : ''}>Customer</option>
+                      <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
+                      <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                    </select>
                   </td>
                   <td style="text-align:center;">${u.total_bookings}</td>
                   <td style="font-size:0.8rem;color:var(--text-soft);">${new Date(u.created_at).toLocaleDateString('vi-VN')}</td>
@@ -572,14 +575,43 @@ const AdminApp = {
   },
 
   /* ---- INIT ---- */
-  init() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user.id || user.role !== 'admin') {
+  async init() {
+    try {
+      // Fetch thông tin user mới nhất từ server để đảm bảo role chính xác
+      const res = await API.getCurrentUser();
+      const user = res.data.user;
+
+      // Cập nhật localStorage với thông tin mới nhất
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // Kiểm tra quyền admin
+      if (!user.id || user.role !== 'admin') {
+        window.location.href = '/';
+        return;
+      }
+
+      AuthManager.updateUI(user);
+      this.loadDashboard();
+    } catch (error) {
+      console.error('Failed to get current user:', error);
+      // Nếu không thể lấy thông tin user, redirect về trang chủ
+      AuthManager.logout();
       window.location.href = '/';
-      return;
     }
-    AuthManager.updateUI(user);
-    this.loadDashboard();
+  },
+
+  /* ---- USER ROLE MANAGEMENT ---- */
+  async updateUserRole(userId, newRole) {
+    try {
+      await API.adminUpdateUserRole(userId, newRole);
+      showToast('success', 'Đã cập nhật', 'Vai trò người dùng đã được thay đổi');
+      // Reload danh sách users để cập nhật hiển thị
+      this.loadUsers();
+    } catch (error) {
+      showToast('error', 'Lỗi', error.message);
+      // Reset lại select về giá trị cũ nếu có lỗi
+      this.loadUsers();
+    }
   }
 };
 

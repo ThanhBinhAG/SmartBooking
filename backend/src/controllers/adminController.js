@@ -257,7 +257,45 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// Cập nhật role của user
+const updateUserRole = async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  // Validate role
+  if (!['customer', 'admin', 'staff'].includes(role)) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Role không hợp lệ. Chỉ chấp nhận: customer, admin, staff' 
+    });
+  }
+
+  try {
+    const result = await query(
+      'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, full_name, email, role',
+      [role, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy user' });
+    }
+
+    res.json({ 
+      success: true, 
+      data: result.rows[0], 
+      message: 'Cập nhật role thành công' 
+    });
+  } catch (err) {
+    console.error('❌ Lỗi cập nhật role user:', err.message);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Lỗi hệ thống',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+};
+
 module.exports = {
   getAllRoomsAdmin, createRoom, updateRoom, deleteRoom,
-  getDashboardStats, getAllBookings, updateBookingStatus, getAllUsers
+  getDashboardStats, getAllBookings, updateBookingStatus, getAllUsers, updateUserRole
 };

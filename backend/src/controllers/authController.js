@@ -125,4 +125,33 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+// ===========================
+// LẤY THÔNG TIN USER HIỆN TẠI
+// ===========================
+const getCurrentUser = async (req, res) => {
+  try {
+    // Lấy thông tin user từ token (đã được decode trong middleware)
+    const user = req.user;
+
+    // Trả về thông tin user (không bao gồm password hash)
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          full_name: user.full_name,
+          email: user.email,
+          role: user.role
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get current user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi hệ thống'
+    });
+  }
+};
+
+module.exports = { register, login, getCurrentUser };

@@ -7,21 +7,38 @@ document.addEventListener('DOMContentLoaded', () => {
     dateInput.value = new Date().toISOString().split('T')[0];
   }
 
-  // Kiểm tra trạng thái đăng nhập
-  checkAuthStatus();
-
   // Load danh sách phòng
   loadRooms();
 });
 
-function checkAuthStatus() {
+// Gọi checkAuthStatus sau khi tất cả scripts đã load
+window.addEventListener('load', async () => {
+  await checkAuthStatus();
+});
+
+async function checkAuthStatus() {
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || 'null');
 
   if (token && user) {
-    document.getElementById('auth-buttons').style.display = 'none';
-    document.getElementById('user-info').style.display = 'flex';
-    document.getElementById('username-display').textContent = `👋 ${user.full_name}`;
+    try {
+      // Fetch thông tin user mới nhất từ server để đảm bảo role chính xác
+      const res = await API.getCurrentUser();
+      const freshUser = res.data.user;
+
+      // Cập nhật localStorage với thông tin mới nhất
+      localStorage.setItem('user', JSON.stringify(freshUser));
+
+      // Sử dụng AuthManager.updateUI để cập nhật đầy đủ UI bao gồm link admin
+      AuthManager.updateUI(freshUser);
+    } catch (error) {
+      console.error('Failed to get current user:', error);
+      // Nếu không thể lấy thông tin user, logout
+      AuthManager.logout();
+    }
+  } else {
+    // Hiển thị UI cho guest
+    AuthManager._showGuestUI();
   }
 }
 

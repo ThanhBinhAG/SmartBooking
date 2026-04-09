@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Admin Links</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .hidden { display: none !important; }
+    .admin-only-link { background: #ff6b6b; color: white; padding: 10px; margin: 5px; display: inline-block; }
+    .admin-only-link.hidden { background: #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Test Admin Links</h1>
+
+  <div id="auth-guest">
+    <p>Guest UI - should be hidden when logged in</p>
+  </div>
+
+  <div id="auth-user" class="hidden">
+    <p>User UI - should be shown when logged in</p>
+    <div id="user-dropdown-menu">
+      <a href="/admin.html" class="admin-only-link hidden">⚙️ Quản trị hệ thống</a>
+    </div>
+  </div>
+
+  <button onclick="testLogin()">Test Login as Admin</button>
+  <button onclick="testLoginCustomer()">Test Login as Customer</button>
+  <button onclick="testLogout()">Test Logout</button>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    async function testLogin() {
+      try {
+        const res = await API.login({ email: 'admin@smartbooking.vn', password: 'admin123' });
+        console.log('Login response:', res);
+        AuthManager.updateUI(res.data.user);
+      } catch (error) {
+        console.error('Login failed:', error);
+      }
+    }
+
+    async function testLoginCustomer() {
+      try {
+        const res = await API.login({ email: 'customer@smartbooking.vn', password: 'admin123' });
+        console.log('Login response:', res);
+        AuthManager.updateUI(res.data.user);
+      } catch (error) {
+        console.error('Login failed:', error);
+      }
+    }
+
+    function testLogout() {
+      AuthManager.logout();
+    }
+  </script>
+</body>
+</html>

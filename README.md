@@ -253,6 +253,18 @@ JWT_SECRET=your_secret_key_here
 MAX_FILE_SIZE=5242880  # 5MB
 ```
 
+## 🔑 Tài Khoản Mặc Định
+
+Sau khi chạy migration, hệ thống sẽ tạo sẵn các tài khoản mẫu:
+
+| Email | Mật khẩu | Vai trò | Mô tả |
+|-------|----------|---------|-------|
+| `admin@smartbooking.vn` | `admin123` | Admin | Tài khoản quản trị viên |
+| `staff@smartbooking.vn` | `admin123` | Staff | Tài khoản nhân viên |
+| `customer@smartbooking.vn` | `admin123` | Customer | Tài khoản khách hàng |
+
+**⚠️ Lưu ý:** Trong môi trường production, hãy thay đổi mật khẩu mặc định và xóa các tài khoản không cần thiết.
+
 ## 🔑 Loại Người Dùng (Roles)
 
 | Role | Quyền | Chức Năng |

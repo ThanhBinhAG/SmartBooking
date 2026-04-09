@@ -56,6 +56,8 @@ const API = {
     body: JSON.stringify(credentials)
   }),
 
+  getCurrentUser: () => apiCall('/auth/user'),
+
   // Rooms
   getRooms: (params = {}) => {
     const query = new URLSearchParams(params).toString();
@@ -132,6 +134,10 @@ const API = {
   }),
 
   adminGetUsers: () => apiCall('/admin/users'),
+  adminUpdateUserRole: (userId, role) => apiCall(`/admin/users/${userId}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role })
+  }),
 
   // Equipment (có thể là API chung, không nhất thiết chỉ admin)
   getEquipment: () => apiCall('/equipment'),
