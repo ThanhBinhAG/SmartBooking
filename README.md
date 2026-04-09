@@ -347,8 +347,8 @@ Dự án này được cấp phép dưới giấy phép MIT.
 ## 📧 Liên Hệ
 
 Nếu có câu hỏi hoặc đề xuất, vui lòng liên hệ:
-- Email: support@smartbooking.vn
-- Issue Tracker: [GitHub Issues](https://github.com/your-repo/issues)
+- Email: tn813615@gmail.com
+- Issue Tracker: [GitHub Issues](https://github.com/ThanhBinhAG/SmartBooking/issues)
 
 ---
 
