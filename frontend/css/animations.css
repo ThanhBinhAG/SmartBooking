@@ -1,0 +1,226 @@
+/* ============================================
+   ANIMATIONS & SCROLL EFFECTS — v2.0
+   ============================================ */
+
+/* === REVEAL ON SCROLL === */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+
+.reveal-left.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+
+.reveal-right.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Stagger effect — các phần tử con xuất hiện lần lượt */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+}
+
+.stagger-children.revealed > *:nth-child(1) { transition-delay: 0.0s; opacity: 1; transform: none; }
+.stagger-children.revealed > *:nth-child(2) { transition-delay: 0.1s; opacity: 1; transform: none; }
+.stagger-children.revealed > *:nth-child(3) { transition-delay: 0.2s; opacity: 1; transform: none; }
+.stagger-children.revealed > *:nth-child(4) { transition-delay: 0.3s; opacity: 1; transform: none; }
+.stagger-children.revealed > *:nth-child(5) { transition-delay: 0.4s; opacity: 1; transform: none; }
+.stagger-children.revealed > *:nth-child(6) { transition-delay: 0.5s; opacity: 1; transform: none; }
+
+/* === SHIMMER EFFECT (skeleton loading) === */
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to   { background-position: 200% center; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-section) 25%,
+    var(--border) 50%,
+    var(--bg-section) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+}
+
+/* === COUNTER ANIMATION === */
+.count-up {
+  display: inline-block;
+  transition: all 0.3s;
+}
+
+/* === PARALLAX (hero background) === */
+.parallax {
+  will-change: transform;
+  transition: transform 0.05s linear;
+}
+
+/* === PROGRESS BAR FILL === */
+@keyframes progress-fill {
+  from { width: 0; }
+}
+
+.progress-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 4px;
+  animation: progress-fill 1s var(--ease) forwards;
+}
+
+/* === PULSE RING (badge notification) === */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.pulse-ring {
+  position: relative;
+}
+
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0;
+  animation: pulse-ring 2s ease infinite;
+}
+
+/* === TYPING CURSOR === */
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-cursor::after {
+  content: '|';
+  animation: blink-cursor 1s step-end infinite;
+  color: var(--gold);
+}
+
+/* === HOVER SHINE EFFECT (button/card) === */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.25),
+    transparent
+  );
+  transform: skewX(-20deg);
+  transition: left 0.6s var(--ease);
+}
+
+.shine:hover::before { left: 160%; }
+
+/* === FLOATING PARTICLES (hero bg) === */
+.particles-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(200, 134, 10, 0.2);
+  animation: particle-float linear infinite;
+}
+
+@keyframes particle-float {
+  0% { transform: translateY(100vh) scale(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.3; }
+  100% { transform: translateY(-100px) scale(1); opacity: 0; }
+}
+
+/* === IMAGE SKELETON === */
+.img-skeleton {
+  background: var(--bg-section);
+  position: relative;
+  overflow: hidden;
+}
+
+.img-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255,255,255,0.5) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* === SMOOTH NUMBER COUNT === */
+.stat-number-animated {
+  display: inline-block;
+}
+
+/* === HOVER TILT === */
+.tilt-card {
+  transform-style: preserve-3d;
+  transform: perspective(1000px);
+  transition: transform 0.3s ease;
+}
+
+/* === GRADIENT TEXT ANIMATION === */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.gradient-text-animated {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light), var(--brown-soft), var(--gold));
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 4s ease infinite;
+}

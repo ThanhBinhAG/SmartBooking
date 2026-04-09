@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Trị — SmartBook 3D</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- HEADER -->
+  <header class="header" id="main-header">
+    <nav class="nav">
+      <a href="/" class="logo">
+        <div class="logo-icon">🏢</div>
+        Smart<span>Book</span>
+        <span style="background:#DC2626;color:white;font-size:0.65rem;padding:2px 8px;border-radius:4px;font-family:var(--font-body);font-weight:700;letter-spacing:1px;margin-left:6px;">ADMIN</span>
+      </a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">← Trang chủ</a>
+      </div>
+      <div class="nav-actions">
+        <div id="auth-user">
+          <button class="user-avatar-btn" onclick="AuthManager.toggleDropdown()" id="user-btn">
+            <div class="avatar-circle" id="user-avatar-initial">A</div>
+            <span id="user-display-name">Admin</span>
+            <span>▾</span>
+          </button>
+          <div class="dropdown-menu" id="user-dropdown-menu">
+            <button class="dropdown-item danger" onclick="AuthManager.logout()">
+              <span class="icon">🚪</span> Đăng xuất
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ADMIN LAYOUT -->
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <nav class="admin-nav">
+        <button class="admin-nav-item active" onclick="AdminApp.showSection('dashboard', this)">
+          <span>📊</span> Tổng quan
+        </button>
+        <button class="admin-nav-item" onclick="AdminApp.showSection('rooms', this)">
+          <span>🏢</span> Phòng họp
+        </button>
+        <button class="admin-nav-item" onclick="AdminApp.showSection('bookings', this)">
+          <span>📅</span> Đặt phòng
+        </button>
+        <button class="admin-nav-item" onclick="AdminApp.showSection('users', this)">
+          <span>👥</span> Người dùng
+        </button>
+        <button class="admin-nav-item" onclick="AdminApp.showSection('equipment', this)">
+          <span>🛠️</span> Thiết bị
+        </button>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+
+      <!-- SECTION: DASHBOARD -->
+      <div class="admin-section" id="section-dashboard">
+        <div class="admin-page-header">
+          <h1 class="admin-page-title">Tổng Quan</h1>
+        </div>
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card"><div class="shimmer" style="height:80px;border-radius:12px;"></div></div>
+          <div class="stat-card"><div class="shimmer" style="height:80px;border-radius:12px;"></div></div>
+          <div class="stat-card"><div class="shimmer" style="height:80px;border-radius:12px;"></div></div>
+          <div class="stat-card"><div class="shimmer" style="height:80px;border-radius:12px;"></div></div>
+        </div>
+        <div class="admin-card mt-6">
+          <h3 class="admin-card-title">📅 Đặt phòng trong 7 ngày tới</h3>
+          <div id="upcoming-bookings">
+            <div style="text-align:center;padding:30px;color:var(--text-soft)">⏳ Đang tải...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: PHÒNG HỌP -->
+      <div class="admin-section hidden" id="section-rooms">
+        <div class="admin-page-header">
+          <h1 class="admin-page-title">Quản Lý Phòng Họp</h1>
+          <button class="btn btn-primary btn-sm shine" onclick="AdminApp.openRoomModal()">
+            ➕ Thêm phòng mới
+          </button>
+        </div>
+        <div id="rooms-admin-list">
+          <div style="text-align:center;padding:40px;color:var(--text-soft)">⏳ Đang tải...</div>
+        </div>
+      </div>
+
+      <!-- SECTION: BOOKINGS -->
+      <div class="admin-section hidden" id="section-bookings">
+        <div class="admin-page-header">
+          <h1 class="admin-page-title">Quản Lý Đặt Phòng</h1>
+          <div style="display:flex;gap:10px;">
+            <select class="search-input" id="booking-filter-status" onchange="AdminApp.loadBookings()"
+                    style="width:160px;">
+              <option value="">Tất cả trạng thái</option>
+              <option value="pending">⏳ Chờ xử lý</option>
+              <option value="confirmed">✅ Xác nhận</option>
+              <option value="paid">💳 Đã thanh toán</option>
+              <option value="cancelled">❌ Đã hủy</option>
+              <option value="completed">🏁 Hoàn thành</option>
+            </select>
+            <input type="date" class="search-input" id="booking-filter-date"
+                   onchange="AdminApp.loadBookings()" style="width:160px;">
+          </div>
+        </div>
+        <div id="bookings-admin-list">
+          <div style="text-align:center;padding:40px;color:var(--text-soft)">⏳ Đang tải...</div>
+        </div>
+      </div>
+
+      <!-- SECTION: USERS -->
+      <div class="admin-section hidden" id="section-users">
+        <div class="admin-page-header">
+          <h1 class="admin-page-title">Người Dùng</h1>
+        </div>
+        <div id="users-admin-list">
+          <div style="text-align:center;padding:40px;color:var(--text-soft)">⏳ Đang tải...</div>
+        </div>
+      </div>
+
+      <!-- SECTION: THIẾT BỊ -->
+      <div class="admin-section hidden" id="section-equipment">
+        <div class="admin-page-header">
+          <h1 class="admin-page-title">Quản Lý Thiết Bị</h1>
+          <button class="btn btn-primary btn-sm" onclick="AdminApp.openEquipmentModal()">
+            ➕ Thêm thiết bị
+          </button>
+        </div>
+        <div id="equipment-admin-list">
+          <div style="text-align:center;padding:40px;color:var(--text-soft)">⏳ Đang tải...</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL: THÊM / SỬA PHÒNG -->
+  <div class="modal-backdrop" id="room-modal-backdrop">
+    <div class="modal" style="max-width:580px;" id="room-modal">
+      <button class="modal-close" onclick="AdminApp.closeRoomModal()">✕</button>
+      <div class="modal-header">
+        <div class="modal-logo">🏢</div>
+        <h2 class="modal-title" id="room-modal-title">Thêm phòng mới</h2>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-room-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tên phòng *</label>
+            <input type="text" class="form-input" id="room-name" placeholder="Phòng Sáng Tạo A">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tầng</label>
+            <input type="number" class="form-input" id="room-floor" placeholder="5" min="1">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Sức chứa (người) *</label>
+            <input type="number" class="form-input" id="room-capacity" placeholder="8" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Giá/giờ (VNĐ) *</label>
+            <input type="number" class="form-input" id="room-price" placeholder="250000" min="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vị trí / Địa chỉ</label>
+          <input type="text" class="form-input" id="room-location" placeholder="Tầng 5, Tòa nhà The Sun">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mô tả</label>
+          <textarea class="form-input" id="room-description" rows="3"
+                    placeholder="Mô tả ngắn về phòng..." style="resize:vertical;min-height:80px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tiện nghi (nhập cách nhau bởi dấu phẩy)</label>
+          <input type="text" class="form-input" id="room-amenities"
+                 placeholder="wifi, projector, whiteboard, coffee">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ghi chú nội bộ (admin)</label>
+          <input type="text" class="form-input" id="room-admin-note"
+                 placeholder="VD: Cần sửa điều hòa tháng 5">
+        </div>
+        <div id="room-modal-error" class="form-error hidden"></div>
+        <button class="btn btn-primary btn-full shine mt-4" onclick="AdminApp.saveRoom()">
+          💾 Lưu phòng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: QUẢN LÝ ẢNH PHÒNG -->
+  <div class="modal-backdrop" id="image-modal-backdrop">
+    <div class="modal" style="max-width:700px;" id="image-modal">
+      <button class="modal-close" onclick="document.getElementById('image-modal-backdrop').classList.remove('open')">✕</button>
+      <div class="modal-header">
+        <div class="modal-logo">🖼️</div>
+        <h2 class="modal-title">Quản lý ảnh — <span id="image-modal-room-name"></span></h2>
+        <p class="modal-subtitle">Kéo để sắp xếp · Click ⭐ để đặt làm ảnh chính</p>
+      </div>
+      <div class="modal-body">
+        <!-- Upload zone -->
+        <div class="upload-zone" id="upload-zone"
+             onclick="document.getElementById('file-input').click()"
+             ondragover="event.preventDefault()" ondrop="AdminApp.handleDrop(event)">
+          <div class="upload-zone-icon">📤</div>
+          <div class="upload-zone-text">
+            <strong>Click để chọn ảnh</strong> hoặc kéo thả vào đây
+          </div>
+          <div style="font-size:0.8rem;color:var(--text-soft);margin-top:4px;">
+            JPG, PNG, WebP · Tối đa 5MB/ảnh · Tối đa 10 ảnh
+          </div>
+        </div>
+        <input type="file" id="file-input" multiple accept="image/*" style="display:none"
+               onchange="AdminApp.handleFileSelect(event)">
+
+        <!-- Progress khi upload -->
+        <div id="upload-progress" class="hidden" style="margin-top:16px;">
+          <div class="progress-bar">
+            <div class="progress-fill" id="upload-bar" style="width:0%"></div>
+          </div>
+          <div style="text-align:center;font-size:0.82rem;color:var(--text-soft);margin-top:6px;"
+               id="upload-status">Đang upload...</div>
+        </div>
+
+        <!-- Lưới ảnh hiện có -->
+        <div class="image-grid" id="room-images-grid">
+          <div style="text-align:center;padding:20px;color:var(--text-soft)">⏳ Đang tải...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: THÊM / SỬA THIẾT BỊ -->
+  <div class="modal-backdrop" id="equipment-modal-backdrop">
+    <div class="modal" style="max-width:500px;" id="equipment-modal">
+      <button class="modal-close" onclick="AdminApp.closeEquipmentModal()">✕</button>
+      <div class="modal-header">
+        <div class="modal-logo">🛠️</div>
+        <h2 class="modal-title" id="equipment-modal-title">Thêm thiết bị mới</h2>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-equipment-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tên thiết bị *</label>
+            <input type="text" class="form-input" id="equipment-name" placeholder="Máy chiếu">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Đơn vị</label>
+            <input type="text" class="form-input" id="equipment-unit" placeholder="cái" value="cái">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Giá/giờ (VNĐ) *</label>
+            <input type="number" class="form-input" id="equipment-price" placeholder="50000" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tồn kho *</label>
+            <input type="number" class="form-input" id="equipment-stock" placeholder="10" min="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mô tả</label>
+          <textarea class="form-input" id="equipment-description" rows="3"
+                    placeholder="Mô tả chi tiết về thiết bị..." style="resize:vertical;min-height:80px;"></textarea>
+        </div>
+        <div id="equipment-modal-error" class="form-error hidden"></div>
+        <button class="btn btn-primary btn-full shine mt-4" onclick="AdminApp.saveEquipment()">
+          💾 Lưu thiết bị
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/effects.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

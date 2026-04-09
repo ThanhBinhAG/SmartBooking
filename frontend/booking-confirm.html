@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xác Nhận Đặt Phòng — SmartBook</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container" style="max-width: 800px; margin: 40px auto; padding: 0 24px;">
+    <div class="booking-confirm-card" style="
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    ">
+      <div class="success-icon" style="
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--gold), var(--gold-light));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin: 0 auto 24px;
+      ">✅</div>
+
+      <h1 style="
+        font-family: var(--font-display);
+        font-size: 2rem;
+        color: var(--text-dark);
+        margin-bottom: 16px;
+      ">Đặt Phòng Thành Công!</h1>
+
+      <p style="
+        color: var(--text-mid);
+        font-size: 1.1rem;
+        margin-bottom: 32px;
+      ">Cảm ơn bạn đã sử dụng dịch vụ của SmartBook. Thông tin đặt phòng của bạn đã được xác nhận.</p>
+
+      <div id="booking-details" class="booking-details" style="
+        background: var(--bg-section);
+        border-radius: var(--radius-md);
+        padding: 24px;
+        margin-bottom: 32px;
+        text-align: left;
+      ">
+        <!-- Booking details sẽ được load vào đây -->
+        <div class="loading">⏳ Đang tải thông tin...</div>
+      </div>
+
+      <div class="booking-actions" style="display: flex; gap: 16px; justify-content: center;">
+        <a href="/dashboard.html" class="btn btn-primary" style="
+          background: var(--gold);
+          color: white;
+          padding: 12px 24px;
+          border-radius: var(--radius-md);
+          text-decoration: none;
+          font-weight: 600;
+          transition: all 0.2s var(--ease);
+        ">📊 Xem Đặt Phòng Của Tôi</a>
+
+        <a href="/index.html" class="btn btn-secondary" style="
+          background: var(--bg-section);
+          color: var(--text-dark);
+          padding: 12px 24px;
+          border-radius: var(--radius-md);
+          text-decoration: none;
+          font-weight: 600;
+          border: 1px solid var(--border);
+          transition: all 0.2s var(--ease);
+        ">🏠 Về Trang Chủ</a>
+      </div>
+
+      <div class="booking-notice" style="
+        margin-top: 32px;
+        padding: 20px;
+        background: rgba(200, 134, 10, 0.1);
+        border: 1px solid rgba(200, 134, 10, 0.2);
+        border-radius: var(--radius-md);
+        color: var(--text-mid);
+        font-size: 0.9rem;
+      ">
+        <strong>📱 Thông báo:</strong> Thông tin xác nhận sẽ được gửi về Zalo của bạn trong vòng 5 phút.
+        Nếu bạn không nhận được, vui lòng liên hệ hotline: <strong>1900-xxxx</strong>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    async function loadBookingDetails() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const bookingId = urlParams.get('id');
+
+      if (!bookingId) {
+        document.getElementById('booking-details').innerHTML =
+          '<p style="color: var(--text-soft);">Không tìm thấy thông tin đặt phòng</p>';
+        return;
+      }
+
+      try {
+        const res = await API.getBookingById(bookingId);
+        const booking = res.data;
+
+        document.getElementById('booking-details').innerHTML = `
+          <h3 style="margin-bottom: 20px; color: var(--text-dark);">Chi Tiết Đặt Phòng</h3>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div>
+              <strong>🏢 Phòng:</strong> ${booking.room_name}
+            </div>
+            <div>
+              <strong>📅 Ngày:</strong> ${new Date(booking.start_datetime).toLocaleDateString('vi-VN')}
+            </div>
+            <div>
+              <strong>⏰ Giờ bắt đầu:</strong> ${new Date(booking.start_datetime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'})}
+            </div>
+            <div>
+              <strong>⏰ Giờ kết thúc:</strong> ${new Date(booking.end_datetime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'})}
+            </div>
+            <div>
+              <strong>💰 Tổng tiền:</strong> ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(booking.total_price)}
+            </div>
+            <div>
+              <strong>📊 Trạng thái:</strong>
+              <span style="color: ${booking.status === 'confirmed' ? 'var(--gold)' : 'var(--text-mid)'};">${booking.status === 'confirmed' ? 'Đã xác nhận' : 'Chờ xử lý'}</span>
+            </div>
+          </div>
+
+          ${booking.equipment_items && booking.equipment_items.length > 0 ? `
+            <div>
+              <strong>🛠️ Thiết bị đã đặt:</strong>
+              <ul style="margin-top: 8px; padding-left: 20px;">
+                ${booking.equipment_items.map(item => `
+                  <li>${item.equipment_name} (${item.quantity} ${item.unit})</li>
+                `).join('')}
+              </ul>
+            </div>
+          ` : '<div><strong>🛠️ Thiết bị:</strong> Không có</div>'}
+
+          ${booking.notes ? `
+            <div style="margin-top: 16px;">
+              <strong>📝 Ghi chú:</strong> ${booking.notes}
+            </div>
+          ` : ''}
+        `;
+      } catch (e) {
+        document.getElementById('booking-details').innerHTML =
+          `<p style="color: var(--text-soft);">Không tải được thông tin đặt phòng: ${e.message}</p>`;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadBookingDetails);
+  </script>
+</body>
+</html>

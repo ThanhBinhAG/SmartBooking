@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SmartBook 3D — Đặt phòng họp thông minh, xem không gian 3D trước khi thuê">
+  <title>SmartBook 3D — Đặt Phòng Họp Thông Minh</title>
+
+  <!-- Preconnect fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+
+  <!-- ===== PAGE LOADER ===== -->
+  <div class="page-loader" id="page-loader">
+    <div class="loader-logo">Smart<span>Book</span> 3D</div>
+    <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  </div>
+
+  <!-- ===== TOAST CONTAINER ===== -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header" id="main-header">
+    <nav class="nav">
+      <!-- Logo -->
+      <a href="/" class="logo" aria-label="SmartBook 3D Home">
+        <div class="logo-icon">🏢</div>
+        Smart<span>Book</span>
+      </a>
+
+      <!-- Nav Links -->
+      <div class="nav-links">
+        <a href="/" class="nav-link active">Trang chủ</a>
+        <a href="#rooms" class="nav-link">Phòng họp</a>
+        <a href="#features" class="nav-link">Tính năng</a>
+        <a href="#about" class="nav-link">Về chúng tôi</a>
+      </div>
+
+      <!-- Auth Actions -->
+      <div class="nav-actions" id="nav-actions">
+        <!-- Trạng thái chưa đăng nhập -->
+        <div id="auth-guest" class="nav-actions">
+          <button class="btn btn-ghost btn-sm" onclick="AuthManager.openModal('login')">
+            Đăng nhập
+          </button>
+          <button class="btn btn-primary btn-sm shine" onclick="AuthManager.openModal('register')">
+            Đăng ký miễn phí
+          </button>
+        </div>
+
+        <!-- Trạng thái đã đăng nhập -->
+        <div id="auth-user" class="hidden user-dropdown">
+          <button class="user-avatar-btn" onclick="AuthManager.toggleDropdown()" id="user-btn">
+            <div class="avatar-circle" id="user-avatar-initial">U</div>
+            <span id="user-display-name">Người dùng</span>
+            <span>▾</span>
+          </button>
+          <div class="dropdown-menu" id="user-dropdown-menu">
+            <a href="/admin.html" class="dropdown-item admin-only-link hidden">
+              <span class="icon">⚙️</span> Quản trị hệ thống
+            </a>
+            <a href="/bookings.html" class="dropdown-item">
+              <span class="icon">🕒</span> Lịch sử đặt phòng
+            </a>
+            <a href="/account.html" class="dropdown-item">
+              <span class="icon">⚙️</span> Cài đặt tài khoản
+            </a>
+            <a href="/notifications.html" class="dropdown-item">
+              <span class="icon">🔔</span> Thông báo
+            </a>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item danger" onclick="AuthManager.logout()">
+              <span class="icon">🚪</span> Đăng xuất
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <div class="hero-grid-lines"></div>
+      <div class="particles-container" id="particles"></div>
+
+      <div class="hero-container">
+        <!-- Nội dung bên trái -->
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            Nền tảng đặt phòng #1 tại Việt Nam
+          </div>
+
+          <h1 class="hero-title">
+            Đặt Phòng Họp<br>
+            <span class="highlight">Xem 3D Trước<br>Khi Thuê</span>
+          </h1>
+
+          <p class="hero-desc">
+            Trải nghiệm không gian thực tế với công nghệ 3D tương tác.
+            Đặt lịch, thanh toán và check-in QR hoàn toàn tự động —
+            chỉ trong vài giây.
+          </p>
+
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-xl shine" onclick="document.getElementById('rooms').scrollIntoView({behavior:'smooth'})">
+              🔍 Khám phá phòng họp
+            </button>
+            <a href="/room-detail.html" class="btn btn-ghost btn-xl">
+              🔭 Xem demo 3D
+            </a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-number count-up" data-target="50">0</div>
+              <div class="stat-label">Phòng họp</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number count-up" data-target="2400">0</div>
+              <div class="stat-label">Lượt đặt phòng</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number count-up" data-target="98">0</div>
+              <div class="stat-label">% Hài lòng</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview card bên phải -->
+        <div class="hero-visual">
+          <div class="float-badge float-badge-1">
+            <div class="badge-dot"></div>
+            Phòng vừa được đặt
+          </div>
+
+          <div class="hero-preview-card">
+            <div style="color: rgba(255,255,255,0.5); font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">
+              📅 Lịch còn trống hôm nay
+            </div>
+            <div class="mini-room-list">
+              <div class="mini-room-item">
+                <div class="mini-room-icon">🏆</div>
+                <div class="mini-room-info">
+                  <h4>Phòng Sáng Tạo A</h4>
+                  <p>8 người · Tầng 5 · Còn 3 khung</p>
+                </div>
+                <span class="mini-room-price">250K/h</span>
+              </div>
+              <div class="mini-room-item">
+                <div class="mini-room-icon">🎯</div>
+                <div class="mini-room-info">
+                  <h4>Phòng Hội Đồng B</h4>
+                  <p>20 người · Tầng 8 · Còn 2 khung</p>
+                </div>
+                <span class="mini-room-price">500K/h</span>
+              </div>
+              <div class="mini-room-item">
+                <div class="mini-room-icon">✨</div>
+                <div class="mini-room-info">
+                  <h4>Phòng Mini C</h4>
+                  <p>4 người · Tầng 3 · Còn 5 khung</p>
+                </div>
+                <span class="mini-room-price">150K/h</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="float-badge float-badge-2">
+            <span class="badge-icon">🎉</span>
+            QR Check-in tự động
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEARCH BAR -->
+    <div class="search-section" id="search-bar">
+      <div class="search-card">
+        <div class="search-title">🔍 Tìm phòng phù hợp</div>
+        <div class="search-grid">
+          <div class="search-field">
+            <label>📅 Ngày đặt</label>
+            <input type="date" class="search-input" id="search-date">
+          </div>
+          <div class="search-field">
+            <label>🕐 Giờ bắt đầu</label>
+            <input type="time" class="search-input" id="search-start" value="08:00">
+          </div>
+          <div class="search-field">
+            <label>🕑 Giờ kết thúc</label>
+            <input type="time" class="search-input" id="search-end" value="10:00">
+          </div>
+          <div class="search-field">
+            <label>👥 Số người</label>
+            <select class="search-input" id="search-capacity">
+              <option value="">Tất cả sức chứa</option>
+              <option value="4">2–4 người</option>
+              <option value="8">5–8 người</option>
+              <option value="20">Trên 10 người</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-full shine" onclick="searchRooms()">
+            🔍 Tìm ngay
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROOMS LIST -->
+    <section class="section" id="rooms">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-tag">Phòng họp</div>
+          <h2 class="section-title">Chọn Không Gian Phù Hợp</h2>
+          <p class="section-subtitle">
+            Đa dạng phong cách — từ phòng brainstorm nhỏ gọn đến
+            hội trường lớn đẳng cấp. Xem trước 3D trước khi đặt.
+          </p>
+        </div>
+
+        <!-- Filter chips -->
+        <div class="stagger-children" id="filter-chips" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px;">
+          <button class="btn btn-primary btn-sm" data-filter="all" onclick="filterRooms(this, 'all')">Tất cả</button>
+          <button class="btn btn-secondary btn-sm" data-filter="small" onclick="filterRooms(this, 'small')">Nhỏ (≤5 người)</button>
+          <button class="btn btn-secondary btn-sm" data-filter="medium" onclick="filterRooms(this, 'medium')">Vừa (6–15 người)</button>
+          <button class="btn btn-secondary btn-sm" data-filter="large" onclick="filterRooms(this, 'large')">Lớn (>15 người)</button>
+        </div>
+
+        <div class="rooms-grid stagger-children" id="rooms-grid">
+          <!-- Loading skeleton -->
+          <div class="room-card">
+            <div class="room-thumbnail img-skeleton" style="height:210px"></div>
+            <div class="room-body">
+              <div style="height:20px; background:var(--border); border-radius:4px; margin-bottom:8px;" class="shimmer"></div>
+              <div style="height:14px; background:var(--border); border-radius:4px; width:60%; margin-bottom:16px;" class="shimmer"></div>
+              <div style="height:14px; background:var(--border); border-radius:4px; margin-bottom:6px;" class="shimmer"></div>
+              <div style="height:14px; background:var(--border); border-radius:4px; width:80%;" class="shimmer"></div>
+            </div>
+          </div>
+          <div class="room-card">
+            <div class="room-thumbnail img-skeleton" style="height:210px"></div>
+            <div class="room-body">
+              <div style="height:20px; background:var(--border); border-radius:4px; margin-bottom:8px;" class="shimmer"></div>
+              <div style="height:14px; background:var(--border); border-radius:4px; width:60%; margin-bottom:16px;" class="shimmer"></div>
+              <div style="height:14px; background:var(--border); border-radius:4px; margin-bottom:6px;" class="shimmer"></div>
+            </div>
+          </div>
+          <div class="room-card">
+            <div class="room-thumbnail img-skeleton" style="height:210px"></div>
+            <div class="room-body">
+              <div style="height:20px; background:var(--border); border-radius:4px; margin-bottom:8px;" class="shimmer"></div>
+              <div style="height:14px; background:var(--border); border-radius:4px; width:60%; margin-bottom:16px;" class="shimmer"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section section-alt" id="features">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-tag">Tính năng</div>
+          <h2 class="section-title">Tất Cả Trong Một Nền Tảng</h2>
+        </div>
+        <div class="features-grid stagger-children">
+          <div class="feature-card">
+            <div class="feature-icon">🔭</div>
+            <h3 class="feature-title">Xem 3D Tương Tác</h3>
+            <p class="feature-desc">Khám phá từng góc phòng họp với công nghệ Three.js trước khi quyết định đặt. Xoay, zoom, di chuyển tự do.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3 class="feature-title">Đặt Phòng Tức Thì</h3>
+            <p class="feature-desc">Hệ thống tự động kiểm tra lịch trống theo thời gian thực. Không trùng lịch nhờ PostgreSQL Exclusion Constraint.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3 class="feature-title">QR Code Check-in</h3>
+            <p class="feature-desc">Mỗi đặt phòng tạo mã QR riêng. Check-in nhanh chóng tại cửa — không cần giấy tờ hay xác nhận thủ công.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">💳</div>
+            <h3 class="feature-title">Thanh Toán Online</h3>
+            <p class="feature-desc">Tích hợp MoMo, VNPay và tiền mặt. Xác nhận thanh toán tự động qua IPN callback.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🛠️</div>
+            <h3 class="feature-title">Thuê Thiết Bị Đi Kèm</h3>
+            <p class="feature-desc">Đặt kèm máy chiếu, micro không dây, màn hình LED và nhiều thiết bị khác trong cùng một đơn hàng.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3 class="feature-title">Bảo Mật & Tuân Thủ</h3>
+            <p class="feature-desc">Mật khẩu mã hóa bcrypt, JWT authentication, và tuân thủ Nghị định 13/2023 về bảo vệ dữ liệu cá nhân.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section-header reveal">
+          <div class="section-tag">Đánh giá</div>
+          <h2 class="section-title">Khách Hàng Nói Gì?</h2>
+        </div>
+        <div class="testimonials-grid stagger-children">
+          <div class="testimonial-card">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"Tính năng xem 3D cực kỳ ấn tượng. Tôi có thể kiểm tra đầy đủ không gian trước khi đặt, tiết kiệm rất nhiều thời gian đi lại."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar">NT</div>
+              <div>
+                <div class="author-name">Nguyễn Thị Hương</div>
+                <div class="author-title">Giám đốc Marketing, Công ty ABC</div>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"QR check-in tự động giúp nhóm chúng tôi vào phòng nhanh chóng. Không cần đợi nhân viên mở cửa hay xác nhận nữa."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar">TM</div>
+              <div>
+                <div class="author-name">Trần Minh Khoa</div>
+                <div class="author-title">CTO, Startup Tech XYZ</div>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-stars">★★★★☆</div>
+            <p class="testimonial-text">"Giao diện đẹp, dễ dùng. Hệ thống không bao giờ bị trùng lịch dù nhiều người đặt cùng lúc. Rất ổn định."</p>
+            <div class="testimonial-author">
+              <div class="author-avatar">LH</div>
+              <div>
+                <div class="author-name">Lê Hoàng Nam</div>
+                <div class="author-title">Trưởng nhóm Operations</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="section" style="background: linear-gradient(135deg, var(--brown-dark) 0%, var(--brown-mid) 100%); text-align:center;">
+      <div class="container reveal">
+        <div class="section-tag" style="background: rgba(200,134,10,0.15); color: var(--gold-light);">Bắt đầu ngay</div>
+        <h2 class="section-title" style="color: white; margin-bottom: 16px;">Sẵn Sàng Trải Nghiệm?</h2>
+        <p style="color: rgba(255,255,255,0.6); margin-bottom: 36px; font-size: 1rem;">Đăng ký miễn phí — không cần thẻ tín dụng</p>
+        <button class="btn btn-primary btn-xl shine" onclick="AuthManager.openModal('register')">
+          🚀 Đăng ký ngay, miễn phí
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo" style="font-size:1.3rem;">
+          <div class="logo-icon">🏢</div>
+          Smart<span>Book</span>
+        </div>
+        <p>Nền tảng đặt phòng họp thông minh với công nghệ 3D tương tác. Xây dựng trên nền tảng Node.js, PostgreSQL và Three.js.</p>
+      </div>
+      <div>
+        <div class="footer-heading">Sản phẩm</div>
+        <ul class="footer-links">
+          <li><a href="#rooms">Phòng họp</a></li>
+          <li><a href="/room-detail.html">Xem 3D</a></li>
+          <li><a href="/booking.html">Đặt phòng</a></li>
+          <li><a href="/account.html">Cài đặt / Tài khoản</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-heading">Hỗ trợ</div>
+        <ul class="footer-links">
+          <li><a href="#">Hướng dẫn</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Liên hệ</a></li>
+          <li><a href="#">Báo lỗi</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-heading">Pháp lý</div>
+        <ul class="footer-links">
+          <li><a href="#">Điều khoản dịch vụ</a></li>
+          <li><a href="#">Chính sách bảo mật</a></li>
+          <li><a href="#">Nghị định 13/2023</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 SmartBook 3D. Bảo lưu mọi quyền.</span>
+      <span>Xây dựng với ❤️ tại Việt Nam</span>
+    </div>
+  </footer>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="modal-backdrop" id="auth-modal-backdrop" onclick="AuthManager.closeOnBackdrop(event)">
+    <div class="modal" id="auth-modal" role="dialog" aria-modal="true">
+
+      <!-- Tabs Login / Register -->
+      <div class="modal-tabs" id="modal-tabs">
+        <button class="modal-tab active" id="tab-login" onclick="AuthManager.switchTab('login')">Đăng nhập</button>
+        <button class="modal-tab" id="tab-register" onclick="AuthManager.switchTab('register')">Đăng ký</button>
+      </div>
+
+      <button class="modal-close" onclick="AuthManager.closeModal()" aria-label="Đóng">✕</button>
+
+      <!-- ===== LOGIN FORM ===== -->
+      <div id="form-login">
+        <div class="modal-header">
+          <div class="modal-logo">👋</div>
+          <h2 class="modal-title">Chào mừng trở lại</h2>
+          <p class="modal-subtitle">Đăng nhập để đặt phòng và quản lý lịch họp</p>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email</label>
+            <div class="input-with-icon">
+              <span class="input-icon">✉️</span>
+              <input type="email" class="form-input" id="login-email"
+                     placeholder="ban@example.com" autocomplete="email">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">
+              Mật khẩu
+              <a href="#" style="float:right; font-size:0.8rem; color:var(--gold);">Quên mật khẩu?</a>
+            </label>
+            <div class="input-with-icon">
+              <span class="input-icon">🔒</span>
+              <input type="password" class="form-input" id="login-password"
+                     placeholder="••••••••" autocomplete="current-password">
+              <button type="button" class="input-toggle-password"
+                      onclick="AuthManager.togglePassword('login-password', this)">👁</button>
+            </div>
+          </div>
+
+          <div id="login-error" class="form-error hidden"></div>
+
+          <button class="btn btn-primary btn-full mt-4 shine"
+                  id="btn-login" onclick="AuthManager.login()">
+            Đăng nhập
+          </button>
+
+          <div class="modal-divider">hoặc tiếp tục với</div>
+
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-secondary btn-full btn-sm" style="flex:1;">
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16'%3E%3Cpath fill='%234285F4' d='M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z'/%3E%3Cpath fill='%2334A853' d='M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.615 24 12.255 24z'/%3E%3Cpath fill='%23FBBC05' d='M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 000 10.76l3.98-3.09z'/%3E%3Cpath fill='%23EA4335' d='M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.64 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z'/%3E%3C/svg%3E" alt="Google" style="width:16px; height:16px;">
+              Google
+            </button>
+          </div>
+
+          <p class="modal-footer-text">
+            Chưa có tài khoản?
+            <a onclick="AuthManager.switchTab('register')">Đăng ký ngay</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- ===== REGISTER FORM ===== -->
+      <div id="form-register" class="hidden">
+        <div class="modal-header">
+          <div class="modal-logo">🎉</div>
+          <h2 class="modal-title">Tạo tài khoản</h2>
+          <p class="modal-subtitle">Miễn phí — chỉ mất 30 giây</p>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="reg-name">Họ và tên *</label>
+              <div class="input-with-icon">
+                <span class="input-icon">👤</span>
+                <input type="text" class="form-input" id="reg-name"
+                       placeholder="Nguyễn Văn A" autocomplete="name">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-phone">Số điện thoại</label>
+              <div class="input-with-icon">
+                <span class="input-icon">📞</span>
+                <input type="tel" class="form-input" id="reg-phone"
+                       placeholder="0901 234 567" autocomplete="tel">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-email">Email *</label>
+            <div class="input-with-icon">
+              <span class="input-icon">✉️</span>
+              <input type="email" class="form-input" id="reg-email"
+                     placeholder="ban@example.com" autocomplete="email">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-password">Mật khẩu *</label>
+            <div class="input-with-icon">
+              <span class="input-icon">🔒</span>
+              <input type="password" class="form-input" id="reg-password"
+                     placeholder="Tối thiểu 8 ký tự" autocomplete="new-password">
+              <button type="button" class="input-toggle-password"
+                      onclick="AuthManager.togglePassword('reg-password', this)">👁</button>
+            </div>
+            <div id="password-strength" style="margin-top:6px;"></div>
+          </div>
+
+          <!-- Đồng ý điều khoản (Nghị định 13/2023) -->
+          <div class="consent-box form-group">
+            <input type="checkbox" class="consent-checkbox" id="reg-consent">
+            <label class="consent-text" for="reg-consent">
+              Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và
+              <a href="#">Chính sách bảo mật dữ liệu cá nhân</a>
+              theo quy định Nghị định 13/2023/NĐ-CP
+            </label>
+          </div>
+
+          <div id="reg-error" class="form-error hidden"></div>
+
+          <button class="btn btn-primary btn-full shine"
+                  id="btn-register" onclick="AuthManager.register()">
+            Tạo tài khoản miễn phí
+          </button>
+
+          <p class="modal-footer-text">
+            Đã có tài khoản?
+            <a onclick="AuthManager.switchTab('login')">Đăng nhập</a>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/effects.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

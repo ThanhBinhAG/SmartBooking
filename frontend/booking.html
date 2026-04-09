@@ -1,0 +1,59 @@
+<!-- Thêm section này vào trong booking form, sau phần chọn thời gian -->
+
+<!-- EQUIPMENT PICKER -->
+<div class="panel-section" id="equipment-section">
+  <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;margin-bottom:4px;">
+    🛠️ Thuê thiết bị đi kèm
+  </h3>
+  <p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:20px;">
+    Tùy chọn — chọn thêm nếu cần, giá tính theo số giờ đặt phòng
+  </p>
+
+  <div id="equipment-list">
+    <div style="text-align:center;color:var(--text-soft);">⏳ Đang tải...</div>
+  </div>
+
+  <!-- GIỎ THIẾT BỊ (hiện khi có chọn ít nhất 1 thiết bị) -->
+  <div id="equipment-cart" class="hidden" style="
+      background:var(--gold-pale);
+      border:1px solid rgba(200,134,10,0.25);
+      border-radius:var(--radius-md);
+      padding:16px;
+      margin-top:16px;">
+    <div style="font-weight:700;font-size:0.9rem;margin-bottom:10px;">🛒 Thiết bị đã chọn</div>
+    <div id="cart-items"></div>
+    <div style="border-top:1px solid rgba(200,134,10,0.3);padding-top:10px;margin-top:10px;
+                display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:0.85rem;color:var(--text-mid);">Phụ phí thiết bị</span>
+      <span style="font-weight:700;color:var(--gold);" id="equipment-subtotal">0 ₫</span>
+    </div>
+  </div>
+</div>
+
+<!-- TỔNG TIỀN -->
+<div class="panel-section" style="background:var(--bg-section);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <span style="color:var(--text-soft);">Tiền phòng</span>
+    <span id="room-price-display" style="font-weight:600;">0 ₫</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <span style="color:var(--text-soft);">Tiền thiết bị</span>
+    <span id="equipment-price-display" style="font-weight:600;">0 ₫</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;
+              padding-top:14px;border-top:2px solid var(--border);">
+    <span style="font-weight:700;font-size:1rem;">Tổng cộng</span>
+    <span id="total-price-display" style="font-weight:800;font-size:1.4rem;color:var(--gold);
+          font-family:var(--font-display);">0 ₫</span>
+  </div>
+</div>
+
+<!-- NÚT XÁC NHẬN ĐẶT PHÒNG -->
+<div class="panel-section" style="text-align:center;">
+  <button class="btn btn-primary btn-xl btn-full shine" onclick="BookingManager.confirm()">
+    ✅ Xác nhận đặt phòng
+  </button>
+  <p style="font-size:0.78rem;color:var(--text-soft);margin-top:8px;">
+    Sau khi xác nhận, thông báo sẽ được gửi qua Zalo của bạn
+  </p>
+</div>
