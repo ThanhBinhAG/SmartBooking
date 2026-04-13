@@ -15,7 +15,7 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- HEADER -->
-  <header class="header" id="main-header">
+  <header class="header hidden" id="main-header">
     <nav class="nav">
       <a href="/" class="logo">
         <div class="logo-icon">🏢</div>
@@ -33,7 +33,7 @@
             <span>▾</span>
           </button>
           <div class="dropdown-menu" id="user-dropdown-menu">
-            <button class="dropdown-item danger" onclick="AuthManager.logout()">
+            <button class="dropdown-item danger" onclick="AdminAuth.logout()">
               <span class="icon">🚪</span> Đăng xuất
             </button>
           </div>
@@ -42,8 +42,38 @@
     </nav>
   </header>
 
+  <!-- ADMIN LOGIN SECTION -->
+  <div class="admin-login-section hidden" id="admin-login-section">
+    <div class="admin-login-container">
+      <div class="admin-login-card">
+        <div class="admin-login-header">
+          <div class="admin-login-logo">🔐</div>
+          <h1 class="admin-login-title">Đăng Nhập Quản Trị Viên</h1>
+          <p class="admin-login-subtitle">Vui lòng nhập thông tin đăng nhập để truy cập bảng điều khiển quản trị.</p>
+        </div>
+        <div class="admin-login-form">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="admin-login-email" placeholder="admin@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mật Khẩu</label>
+            <div class="password-input-container">
+              <input type="password" class="form-input" id="admin-login-password" placeholder="••••••••">
+              <button type="button" class="password-toggle" onclick="AuthManager.togglePassword('admin-login-password', this)">👁</button>
+            </div>
+          </div>
+          <div id="admin-login-error" class="form-error hidden"></div>
+          <button class="btn btn-primary btn-full shine" id="admin-login-btn" onclick="AdminAuth.login()">
+            🔓 Đăng Nhập
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ADMIN LAYOUT -->
-  <div class="admin-layout">
+  <div class="admin-layout hidden" id="admin-layout">
 
     <!-- SIDEBAR -->
     <aside class="admin-sidebar">
@@ -294,9 +324,15 @@
 
   <!-- ===== SCRIPTS ===== -->
   <script src="/js/api.js"></script>
-  <script src="/js/auth.js"></script>
+  <script src="/js/admin-auth.js"></script>
   <script src="/js/admin.js"></script>
   <script src="/js/effects.js"></script>
   <script src="/js/main.js"></script>
+  <script>
+    // Init admin auth on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      AdminAuth.init();
+    });
+  </script>
 </body>
 </html>

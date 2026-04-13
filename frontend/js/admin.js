@@ -327,7 +327,7 @@ const AdminApp = {
       statusEl.textContent = `Đang upload ${files.length} ảnh...`;
       barEl.style.width = '30%';
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('admin_token');
       const res = await fetch(`/api/admin/rooms/${this.currentRoomId}/images`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },

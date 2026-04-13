@@ -3,7 +3,7 @@ const API_BASE = '/api';
 
 // Helper function để gọi API
 const apiCall = async (endpoint, options = {}) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('admin_token') || localStorage.getItem('token');
 
   const defaultHeaders = {
     'Content-Type': 'application/json',
