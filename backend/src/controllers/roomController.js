@@ -7,7 +7,8 @@ const getAllRooms = async (req, res) => {
     let sql = `
       SELECT r.*,
              COALESCE(AVG(rv.rating), 0)::NUMERIC(3,1) AS avg_rating,
-             COUNT(rv.id) AS review_count
+             COUNT(rv.id) AS review_count,
+             (SELECT url FROM room_images ri WHERE ri.room_id = r.id AND ri.is_primary = TRUE LIMIT 1) AS primary_image_url
       FROM rooms r
       LEFT JOIN reviews rv ON rv.room_id = r.id
       WHERE r.is_available = TRUE
@@ -49,7 +50,8 @@ const getRoomById = async (req, res) => {
   const { id } = req.params;
   try {
     const roomResult = await query(
-      `SELECT r.*, COALESCE(AVG(rv.rating), 0)::NUMERIC(3,1) AS avg_rating
+      `SELECT r.*, COALESCE(AVG(rv.rating), 0)::NUMERIC(3,1) AS avg_rating,
+              (SELECT url FROM room_images ri WHERE ri.room_id = r.id AND ri.is_primary = TRUE LIMIT 1) AS primary_image_url
        FROM rooms r
        LEFT JOIN reviews rv ON rv.room_id = r.id
        WHERE r.id = $1

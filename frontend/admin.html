@@ -78,19 +78,19 @@
     <!-- SIDEBAR -->
     <aside class="admin-sidebar">
       <nav class="admin-nav">
-        <button class="admin-nav-item active" onclick="AdminApp.showSection('dashboard', this)">
+        <button class="admin-nav-item active" data-section="dashboard" onclick="AdminApp.showSection('dashboard', this)">
           <span>📊</span> Tổng quan
         </button>
-        <button class="admin-nav-item" onclick="AdminApp.showSection('rooms', this)">
+        <button class="admin-nav-item" data-section="rooms" onclick="AdminApp.showSection('rooms', this)">
           <span>🏢</span> Phòng họp
         </button>
-        <button class="admin-nav-item" onclick="AdminApp.showSection('bookings', this)">
+        <button class="admin-nav-item" data-section="bookings" onclick="AdminApp.showSection('bookings', this)">
           <span>📅</span> Đặt phòng
         </button>
-        <button class="admin-nav-item" onclick="AdminApp.showSection('users', this)">
+        <button class="admin-nav-item" data-section="users" onclick="AdminApp.showSection('users', this)">
           <span>👥</span> Người dùng
         </button>
-        <button class="admin-nav-item" onclick="AdminApp.showSection('equipment', this)">
+        <button class="admin-nav-item" data-section="equipment" onclick="AdminApp.showSection('equipment', this)">
           <span>🛠️</span> Thiết bị
         </button>
       </nav>

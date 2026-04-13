@@ -32,6 +32,7 @@ app.use('/api/bookings',  require('./src/routes/bookings'));
 app.use('/api/equipment', require('./src/routes/equipment'));
 app.use('/api/account', require('./src/routes/account'));
 app.use('/api/admin', require('./src/routes/admin'));
+app.use('/api/images', require('./src/routes/images'));
 
 // Health check
 app.get('/api/health', (req, res) => {

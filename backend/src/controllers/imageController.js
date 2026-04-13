@@ -25,16 +25,24 @@ const uploadRoomImages = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Không có file ảnh' });
     }
     const inserted = [];
+    const uploaderId = req.user?.id || null;
     for (const file of req.files) {
-      const url = `/uploads/${file.filename}`;
-      const r = await query(
-        `INSERT INTO room_images (room_id, url, alt_text, is_primary, sort_order)
-         VALUES ($1, $2, $3, FALSE, 
-           (SELECT COALESCE(MAX(sort_order),0)+1 FROM room_images WHERE room_id = $1))
-         RETURNING *`,
-        [roomId, url, file.originalname]
+      const filePath = `uploads/rooms/${roomId}/${file.filename}`;
+      const insertResult = await query(
+        `INSERT INTO room_images (room_id, file_path, url, alt_text, is_primary, sort_order, uploaded_by)
+         VALUES ($1, $2, '', $3, FALSE,
+           (SELECT COALESCE(MAX(sort_order),0)+1 FROM room_images WHERE room_id = $1),
+           $4)
+         RETURNING id`,
+        [roomId, filePath, file.originalname, uploaderId]
       );
-      inserted.push(r.rows[0]);
+      const imageId = insertResult.rows[0].id;
+      const imageUrl = `/api/images/${imageId}`;
+      const finalResult = await query(
+        `UPDATE room_images SET url = $1 WHERE id = $2 RETURNING id, url, alt_text, is_primary, sort_order`,
+        [imageUrl, imageId]
+      );
+      inserted.push(finalResult.rows[0]);
     }
     res.status(201).json({ success: true, data: inserted });
   } catch (error) {
@@ -78,13 +86,16 @@ const reorderImages = async (req, res) => {
 const deleteRoomImage = async (req, res) => {
   const { imageId } = req.params;
   try {
-    const r = await query(`DELETE FROM room_images WHERE id = $1 RETURNING url`, [imageId]);
+    const r = await query(`SELECT file_path FROM room_images WHERE id = $1`, [imageId]);
     if (r.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy ảnh' });
     }
-    // Xóa file vật lý nếu tồn tại
-    const filePath = path.join(__dirname, '../../', r.rows[0].url);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    const imageFilePath = r.rows[0].file_path;
+    const filePath = path.join(__dirname, '../../', imageFilePath);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    await query(`DELETE FROM room_images WHERE id = $1`, [imageId]);
     res.json({ success: true, message: 'Đã xóa ảnh' });
   } catch (error) {
     console.error('deleteRoomImage error:', error);
@@ -92,4 +103,25 @@ const deleteRoomImage = async (req, res) => {
   }
 };
 
-module.exports = { getRoomImages, uploadRoomImages, setPrimaryImage, reorderImages, deleteRoomImage };
+const serveImage = async (req, res) => {
+  const { imageId } = req.params;
+  try {
+    const result = await query(
+      `SELECT file_path FROM room_images WHERE id = $1`,
+      [imageId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy ảnh' });
+    }
+    const filePath = path.join(__dirname, '../../', result.rows[0].file_path);
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+    res.status(404).json({ success: false, message: 'Ảnh không tồn tại' });
+  } catch (error) {
+    console.error('serveImage error:', error);
+    res.status(500).json({ success: false, message: 'Lỗi khi tải ảnh' });
+  }
+};
+
+module.exports = { getRoomImages, uploadRoomImages, setPrimaryImage, reorderImages, deleteRoomImage, serveImage };

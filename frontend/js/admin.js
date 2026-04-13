@@ -11,8 +11,10 @@ const AdminApp = {
   showSection(name, btn) {
     document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
     document.querySelectorAll('.admin-nav-item').forEach(b => b.classList.remove('active'));
-    document.getElementById(`section-${name}`).classList.remove('hidden');
-    btn.classList.add('active');
+    document.getElementById(`section-${name}`)?.classList.remove('hidden');
+
+    const activeButton = btn || document.querySelector(`.admin-nav-item[data-section="${name}"]`);
+    activeButton?.classList.add('active');
 
     const loaders = {
       dashboard:  () => this.loadDashboard(),
@@ -328,7 +330,7 @@ const AdminApp = {
       barEl.style.width = '30%';
 
       const token = localStorage.getItem('admin_token');
-      const res = await fetch(`/api/admin/rooms/${this.currentRoomId}/images`, {
+      const res = await fetch(`/api/images/rooms/${this.currentRoomId}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -365,7 +367,7 @@ const AdminApp = {
   async deleteImage(imageId, roomId) {
     if (!confirm('Xóa ảnh này?')) return;
     try {
-      await API.adminDeleteImage(imageId);
+      await API.adminDeleteImage(roomId, imageId);
       document.getElementById(`img-${imageId}`)?.remove();
       showToast('success', 'Đã xóa ảnh', '');
       this.loadRooms();
@@ -626,5 +628,3 @@ function statusLabel(s) {
   const m = { pending:'⏳ Chờ', confirmed:'✅ Xác nhận', paid:'💳 Thanh toán', cancelled:'❌ Hủy', completed:'🏁 Hoàn thành' };
   return m[s] || s;
 }
-
-document.addEventListener('DOMContentLoaded', () => AdminApp.init());

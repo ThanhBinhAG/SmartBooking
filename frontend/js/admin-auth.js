@@ -102,7 +102,8 @@ const AdminAuth = {
     // Cập nhật UI header
     this.updateHeaderUI();
     // Load dashboard
-    AdminApp.showSection('dashboard');
+    const defaultBtn = document.querySelector('.admin-nav-item[data-section="dashboard"]') || document.querySelector('.admin-nav-item.active');
+    AdminApp.showSection('dashboard', defaultBtn);
   },
 
   updateHeaderUI() {

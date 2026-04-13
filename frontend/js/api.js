@@ -110,18 +110,18 @@ const API = {
 
   adminDeleteRoom: (id) => apiCall(`/admin/rooms/${id}`, { method: 'DELETE' }),
 
-  adminGetRoomImages: (roomId) => apiCall(`/admin/rooms/${roomId}/images`),
+  adminGetRoomImages: (roomId) => apiCall(`/images/rooms/${roomId}`),
 
-  adminReorderImages: (roomId, orderData) => apiCall(`/admin/rooms/${roomId}/images/reorder`, {
-    method: 'PATCH',
+  adminReorderImages: (roomId, orderData) => apiCall(`/images/rooms/${roomId}/images/reorder`, {
+    method: 'PUT',
     body: JSON.stringify(orderData)
   }),
 
-  adminSetPrimaryImage: (roomId, imgId) => apiCall(`/admin/rooms/${roomId}/images/${imgId}/set-primary`, {
-    method: 'PATCH'
+  adminSetPrimaryImage: (roomId, imgId) => apiCall(`/images/rooms/${roomId}/images/${imgId}/primary`, {
+    method: 'PUT'
   }),
 
-  adminDeleteImage: (imgId) => apiCall(`/admin/images/${imgId}`, { method: 'DELETE' }),
+  adminDeleteImage: (roomId, imgId) => apiCall(`/images/rooms/${roomId}/images/${imgId}`, { method: 'DELETE' }),
 
   adminGetBookings: (params = {}) => {
     const query = new URLSearchParams(params).toString();

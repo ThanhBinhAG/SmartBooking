@@ -5,6 +5,7 @@ const getAllRoomsAdmin = async (req, res) => {
   try {
     const result = await query(`
       SELECT r.*,
+             (SELECT url FROM room_images ri WHERE ri.room_id = r.id AND ri.is_primary = TRUE LIMIT 1) AS primary_image_url,
              COUNT(DISTINCT ri.id) AS image_count,
              COUNT(DISTINCT b.id) FILTER (WHERE b.status NOT IN ('cancelled')) AS active_bookings
       FROM rooms r
