@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS rooms (
     model_3d_url TEXT,
     thumbnail_url TEXT,
     amenities   JSONB DEFAULT '[]',   -- ["wifi", "projector", "whiteboard"]
-    created_at  TIMESTAMPTZ DEFAULT NOW()
+    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ============================================

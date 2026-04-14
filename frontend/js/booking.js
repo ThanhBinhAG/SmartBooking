@@ -72,6 +72,7 @@ const BookingManager = {
     try {
       const res = await API.getEquipment();
       const container = document.getElementById('equipment-list');
+      if (!container) return;
 
       container.innerHTML = res.data.map(eq => `
         <div class="equipment-item">
@@ -90,8 +91,11 @@ const BookingManager = {
         </div>
       `).join('');
     } catch (e) {
-      document.getElementById('equipment-list').innerHTML =
-        '<p style="color:var(--text-soft);font-size:0.85rem;">Không tải được thiết bị</p>';
+      const container = document.getElementById('equipment-list');
+      if (container) {
+        container.innerHTML =
+          '<p style="color:var(--text-soft);font-size:0.85rem;">Không tải được thiết bị</p>';
+      }
     }
   },
 
@@ -117,21 +121,24 @@ const BookingManager = {
     const itemsEl = document.getElementById('cart-items');
 
     if (!cartItems.length) {
-      cartEl.classList.add('hidden');
+      if (cartEl) cartEl.classList.add('hidden');
       return;
     }
-    cartEl.classList.remove('hidden');
-    itemsEl.innerHTML = cartItems.map(({ item, quantity }) => `
-      <div style="display:flex;justify-content:space-between;align-items:center;
-                  padding:6px 0;font-size:0.85rem;">
-        <span>${item.name} × ${quantity} ${item.unit}</span>
-        <span style="font-weight:600;">${fmtPrice(item.hourly_rate * quantity * this.hours)}</span>
-      </div>
-    `).join('');
+    if (cartEl) cartEl.classList.remove('hidden');
+    if (itemsEl) {
+      itemsEl.innerHTML = cartItems.map(({ item, quantity }) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;
+                    padding:6px 0;font-size:0.85rem;">
+          <span>${item.name} × ${quantity} ${item.unit}</span>
+          <span style="font-weight:600;">${fmtPrice(item.hourly_rate * quantity * this.hours)}</span>
+        </div>
+      `).join('');
+    }
 
     const subtotal = cartItems.reduce((sum, { item, quantity }) =>
       sum + item.hourly_rate * quantity * this.hours, 0);
-    document.getElementById('equipment-subtotal').textContent = fmtPrice(subtotal);
+    const subtotalEl = document.getElementById('equipment-subtotal');
+    if (subtotalEl) subtotalEl.textContent = fmtPrice(subtotal);
   },
 
   /* ---- Tính lại tổng tiền ---- */

@@ -598,6 +598,246 @@ button { cursor: pointer; font-family: inherit; }
   50% { transform: translateY(-14px) rotate(-0.5deg); }
 }
 
+/* ============================================
+   ROOM DETAIL PAGE
+   ============================================ */
+.hidden { display: none !important; }
+
+.room-detail-layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.viewer-panel {
+  min-height: 440px;
+  background: #111117;
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+}
+
+.viewer-panel canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.viewer-controls {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: rgba(17, 17, 23, 0.8);
+  backdrop-filter: blur(12px);
+  color: var(--text-white);
+  font-size: 0.92rem;
+}
+
+.viewer-controls button {
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: white;
+  border-radius: 999px;
+  padding: 10px 16px;
+}
+
+.info-panel,
+.booking-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  box-shadow: var(--shadow-sm);
+  padding: 26px;
+}
+
+.info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.room-gallery {
+  min-height: 220px;
+  background: var(--bg-section);
+  border-radius: 22px;
+  padding: 18px;
+}
+
+.room-gallery img {
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+  object-fit: cover;
+}
+
+.loading {
+  color: var(--text-soft);
+  text-align: center;
+}
+
+.booking-panel h3 {
+  margin-bottom: 18px;
+  font-size: 1.4rem;
+  color: var(--brown-dark);
+}
+
+.booking-section {
+  margin-bottom: 24px;
+}
+
+.booking-section h4 {
+  font-size: 1rem;
+  margin-bottom: 14px;
+  color: var(--brown-dark);
+}
+
+.time-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.92rem;
+  color: var(--text-mid);
+}
+
+.input-group input,
+.booking-section textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  background: white;
+}
+
+.booking-section textarea {
+  min-height: 128px;
+  resize: vertical;
+}
+
+.equipment-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.equipment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-section);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+}
+
+.equipment-info {
+  flex: 1;
+}
+
+.equipment-name {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.equipment-details {
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  margin-bottom: 10px;
+}
+
+.equipment-price {
+  font-weight: 700;
+  color: var(--brown-dark);
+}
+
+.equipment-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.equipment-controls button {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 1.1rem;
+}
+
+.equipment-quantity {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.price-breakdown {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  background: var(--bg-section);
+  border-radius: 18px;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-mid);
+}
+
+.price-row.total {
+  border-top: 1px dashed var(--border);
+  padding-top: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.booking-actions {
+  text-align: center;
+}
+
+.equipment-note {
+  font-size: 0.95rem;
+  color: var(--text-mid);
+  background: var(--bg-section);
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 980px) {
+  .room-detail-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .time-inputs {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Tháº» phÃ²ng mini trong hero */
 .mini-room-list {
   display: flex;
@@ -1964,7 +2204,8 @@ button { cursor: pointer; font-family: inherit; }
      } 
  
      . b o o k i n g - p a n e l   { 
-         d i s p l a y :   n o n e ;   / *   ¨n   b o o k i n g   p a n e l   t r ê n   m o b i l e ,   c h É  h i Çn   k h i   c §n   * / 
+         d i s p l a y :   n o n e ;   / *   ï¿½n   b o o k i n g   p a n e l   t r ï¿½ n   m o b i l e ,   c h ï¿½  h i ï¿½n   k h i   c ï¿½n   * / 
      } 
- }  
+ } 
+ 
  

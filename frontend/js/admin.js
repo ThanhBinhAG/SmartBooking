@@ -127,63 +127,591 @@ const AdminApp = {
     }
   },
 
-  /* ---- ROOM MODAL ---- */
+  roomDesigner: {
+    currentRoomId: null,
+    currentRoomName: 'Phòng mới',
+    blocks: [],
+    previewMode: 'desktop',
+    dragIndex: null,
+    history: [],
+    future: []
+  },
+
   openRoomModal(room = null) {
+    return this.openRoomDesigner(room);
+  },
+
+  async openRoomDesigner(room = null) {
     const isEdit = !!room;
-    document.getElementById('room-modal-title').textContent = isEdit ? 'Chỉnh sửa phòng' : 'Thêm phòng mới';
-    document.getElementById('edit-room-id').value = isEdit ? room.id : '';
-    document.getElementById('room-name').value = isEdit ? room.name : '';
-    document.getElementById('room-floor').value = isEdit ? (room.floor || '') : '';
-    document.getElementById('room-capacity').value = isEdit ? room.capacity : '';
-    document.getElementById('room-price').value = isEdit ? room.price_per_hour : '';
-    document.getElementById('room-location').value = isEdit ? (room.location || '') : '';
-    document.getElementById('room-description').value = isEdit ? (room.description || '') : '';
-    document.getElementById('room-amenities').value = isEdit ? (room.amenities || []).join(', ') : '';
-    document.getElementById('room-admin-note').value = isEdit ? (room.admin_note || '') : '';
-    document.getElementById('room-modal-error').classList.add('hidden');
-    document.getElementById('room-modal-backdrop').classList.add('open');
+    this.roomDesigner.currentRoomId = isEdit ? room.id : null;
+    this.roomDesigner.currentRoomName = isEdit ? room.name : 'Phòng mới';
+    this.roomDesigner.blocks = isEdit ? this.buildBlocksFromRoom(room) : this.buildDefaultBlocks();
+    this.resetHistory();
+    document.getElementById('rooms-list-panel').classList.add('hidden');
+    document.getElementById('room-builder-shell').classList.remove('hidden');
+    this.renderRoomDesigner();
+    if (isEdit) {
+      await this.loadRoomGallery(room.id);
+    }
   },
 
-  closeRoomModal() {
-    document.getElementById('room-modal-backdrop').classList.remove('open');
+  closeRoomDesigner() {
+    document.getElementById('room-builder-shell').classList.add('hidden');
+    document.getElementById('rooms-list-panel').classList.remove('hidden');
   },
 
-  async saveRoom() {
-    const id = document.getElementById('edit-room-id').value;
-    const errEl = document.getElementById('room-modal-error');
-    errEl.classList.add('hidden');
+  resetHistory() {
+    this.roomDesigner.history = [];
+    this.roomDesigner.future = [];
+  },
+
+  pushHistory() {
+    const snapshot = JSON.parse(JSON.stringify(this.roomDesigner.blocks));
+    this.roomDesigner.history.push(snapshot);
+    if (this.roomDesigner.history.length > 50) {
+      this.roomDesigner.history.shift();
+    }
+    this.roomDesigner.future = [];
+    this.updateHistoryButtons();
+  },
+
+  undo() {
+    if (!this.roomDesigner.history.length) return;
+    const current = JSON.parse(JSON.stringify(this.roomDesigner.blocks));
+    this.roomDesigner.future.unshift(current);
+    const previous = this.roomDesigner.history.pop();
+    this.roomDesigner.blocks = previous;
+    this.renderRoomDesigner();
+    this.updateHistoryButtons();
+  },
+
+  redo() {
+    if (!this.roomDesigner.future.length) return;
+    const current = JSON.parse(JSON.stringify(this.roomDesigner.blocks));
+    this.roomDesigner.history.push(current);
+    const next = this.roomDesigner.future.shift();
+    this.roomDesigner.blocks = next;
+    this.renderRoomDesigner();
+    this.updateHistoryButtons();
+  },
+
+  updateHistoryButtons() {
+    const undoBtn = document.getElementById('room-undo-btn');
+    const redoBtn = document.getElementById('room-redo-btn');
+    if (undoBtn) undoBtn.disabled = this.roomDesigner.history.length === 0;
+    if (redoBtn) redoBtn.disabled = this.roomDesigner.future.length === 0;
+  },
+
+  buildDefaultBlocks() {
+    return [
+      { type: 'hero', title: 'Tên phòng mới', caption: 'Một phòng họp ấn tượng dành cho sự kiện và cuộc họp chuyên nghiệp.', image_url: '' },
+      { type: 'gallery', items: [{ url: '', caption: '' }, { url: '', caption: '' }] },
+      { type: 'text', content: 'Viết mô tả chi tiết về phòng họp, không gian, ánh sáng, trang thiết bị và cảm giác khi sử dụng.' },
+      { type: 'highlight', items: [
+        { title: 'Ánh sáng tự nhiên', description: 'Cửa sổ lớn, không gian sáng và thoáng.' },
+        { title: 'Máy chiếu 4K', description: 'Trải nghiệm trình chiếu rõ nét, âm thanh tốt.' },
+      ] },
+      { type: 'specs', capacity: '8', area: '30m²', location: 'Tầng 5, Tòa nhà The Sun', devices: 'Wi-Fi, Máy chiếu, Whiteboard', hourly_price: '250000', daily_price: '1800000' },
+      { type: 'seo', slug: '', title: '', description: '' },
+      { type: 'status', active: true, featured: false, available_time: '08:00 - 18:00' }
+    ];
+  },
+
+  buildBlocksFromRoom(room) {
+    return [
+      { type: 'hero', title: room.name || 'Tên phòng', caption: room.description || 'Mô tả nổi bật về phòng họp.', image_url: room.primary_image_url || '' },
+      { type: 'gallery', items: [{ url: '', caption: '' }], note: 'Kéo thả ảnh vào đây để upload và lưu vào cơ sở dữ liệu.' },
+      { type: 'text', content: room.description || 'Mô tả chi tiết phòng họp cho khách hàng.' },
+      { type: 'highlight', items: [
+        { title: 'Sức chứa', description: `${room.capacity || '?'} người` },
+        { title: 'Tiện nghi nổi bật', description: (room.amenities || []).slice(0, 3).join(', ') || 'Wifi, máy chiếu, snack' },
+      ] },
+      { type: 'specs', capacity: room.capacity || '', area: room.area || '', location: room.location || '', devices: (room.amenities || []).join(', '), hourly_price: room.price_per_hour || '', daily_price: room.price_per_day || '' },
+      { type: 'seo', slug: room.slug || this.slugify(room.name || ''), title: room.meta_title || room.name || '', description: room.meta_description || '' },
+      { type: 'status', active: room.is_available !== false, featured: room.is_featured || false, available_time: room.available_time || '08:00 - 18:00' }
+    ];
+  },
+
+  async loadRoomGallery(roomId) {
+    if (!roomId) return;
+    try {
+      const res = await API.adminGetRoomImages(roomId);
+      const gallery = this.roomDesigner.blocks.find(block => block.type === 'gallery');
+      if (!gallery) return;
+      gallery.items = res.data.map(img => ({ id: img.id, url: img.url, caption: img.caption || '' }));
+      this.renderRoomDesigner();
+    } catch (e) {
+      showToast('error', 'Lỗi tải gallery', e.message);
+    }
+  },
+
+  allowDrop(event) {
+    event.preventDefault();
+    event.currentTarget.classList.add('dragover');
+  },
+
+  removeDropHover(event) {
+    event.currentTarget.classList.remove('dragover');
+  },
+
+  handleGalleryUploadFiles(event) {
+    const index = Number(event.target.dataset.blockIndex);
+    const files = Array.from(event.target.files).filter(file => file.type.startsWith('image/'));
+    this.uploadGalleryImages(index, files);
+    event.target.value = '';
+  },
+
+  handleGalleryDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const index = Number(event.currentTarget.dataset.blockIndex);
+    const files = Array.from(event.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+    this.uploadGalleryImages(index, files);
+    event.currentTarget.classList.remove('dragover');
+  },
+
+  openGalleryUploadInput(index) {
+    document.getElementById(`gallery-upload-input-${index}`)?.click();
+  },
+
+  async uploadGalleryImages(blockIndex, files) {
+    if (!files.length) return;
+    if (!this.roomDesigner.currentRoomId) {
+      showToast('error', 'Lỗi', 'Lưu phòng trước khi upload ảnh.');
+      return;
+    }
+
+    const formData = new FormData();
+    files.forEach(file => formData.append('images', file));
+
+    try {
+      const token = localStorage.getItem('admin_token');
+      const requestOptions = {
+        method: 'POST',
+        body: formData,
+        headers: {}
+      };
+      if (token) requestOptions.headers['Authorization'] = `Bearer ${token}`;
+      const response = await fetch(`/api/images/rooms/${this.roomDesigner.currentRoomId}`, requestOptions);
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Upload ảnh thất bại');
+      }
+      showToast('success', 'Upload thành công', `${data.data.length || files.length} ảnh đã được thêm`);
+      await this.loadRoomGallery(this.roomDesigner.currentRoomId);
+      this.loadRooms();
+    } catch (e) {
+      showToast('error', 'Upload thất bại', e.message);
+    }
+  },
+
+  async deleteGalleryImage(blockIndex, itemIndex) {
+    const block = this.roomDesigner.blocks[blockIndex];
+    if (!block?.items || !block.items[itemIndex]) return;
+    const item = block.items[itemIndex];
+    if (item.id) {
+      if (!confirm('Xóa ảnh này khỏi phòng?')) return;
+      try {
+        await API.adminDeleteImage(item.id);
+        showToast('success', 'Đã xóa ảnh', 'Ảnh đã được xóa khỏi cơ sở dữ liệu.');
+        await this.loadRoomGallery(this.roomDesigner.currentRoomId);
+      } catch (e) {
+        showToast('error', 'Lỗi xóa ảnh', e.message);
+      }
+    } else {
+      block.items.splice(itemIndex, 1);
+      this.renderRoomDesigner();
+    }
+  },
+
+  slugify(value) {
+    return value.toString().toLowerCase().trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9\-]/g, '')
+      .replace(/\-+/g, '-');
+  },
+
+  renderRoomDesigner() {
+    const list = document.getElementById('room-blocks-list');
+    list.innerHTML = this.roomDesigner.blocks.map((block, index) => `
+      <div class="block-card" draggable="true" data-index="${index}">
+        <div class="block-card-header">
+          <div class="block-card-title"><span class="block-drag-handle">☰</span>${this.getBlockLabel(block.type)}</div>
+          <div class="block-card-actions">
+            <button class="btn btn-secondary btn-sm" onclick="AdminApp.duplicateBlock(${index})">Sao chép</button>
+            <button class="btn btn-secondary btn-sm" onclick="AdminApp.removeBlock(${index})">Xóa</button>
+          </div>
+        </div>
+        <div class="block-card-body">${this.renderBlockEditor(block, index)}</div>
+      </div>
+    `).join('');
+    this.initBlockDragAndDrop();
+    this.renderPreview();
+    this.updateHistoryButtons();
+  },
+
+  getBlockLabel(type) {
+    switch (type) {
+      case 'hero': return 'Hero Image';
+      case 'gallery': return 'Gallery';
+      case 'text': return 'Text';
+      case 'highlight': return 'Điểm nổi bật';
+      case 'specs': return 'Thông số kỹ thuật';
+      case 'seo': return 'SEO & Meta';
+      case 'status': return 'Status & Xuất bản';
+      default: return 'Block';
+    }
+  },
+
+  renderBlockEditor(block, index) {
+    const id = `block-${index}`;
+    const escape = (value) => String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const input = (label, field, value, type = 'text', placeholder = '') => `
+      <div class="form-group">
+        <label>${label}</label>
+        <input class="form-input" type="${type}" value="${escape(value)}" placeholder="${escape(placeholder)}" onchange="AdminApp.updateBlockField(${index}, '${field}', this.value)" />
+      </div>
+    `;
+
+    switch (block.type) {
+      case 'hero':
+        return `
+          ${input('Tiêu đề', 'title', block.title, 'text', 'Tên phòng ví dụ')}
+          ${input('Caption', 'caption', block.caption, 'text', 'Mô tả ngắn')}
+          ${input('Ảnh hero URL', 'image_url', block.image_url, 'text', 'https://...')}
+          <small>Hình ảnh hero sẽ xuất hiện ngay ở đầu trang.</small>
+        `;
+      case 'gallery':
+        return `
+          <div class="gallery-preview-grid">
+            ${block.items.map((item, itemIndex) => `
+              <div class="gallery-preview-item">
+                <img src="${escape(item.url || 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=400&q=80')}" alt="${escape(item.caption)}" />
+                <div class="gallery-preview-caption">${escape(item.caption || 'Ảnh phòng')}</div>
+                ${item.id ? `<button class="btn btn-sm" style="position:absolute;top:8px;right:8px;background:rgba(220,38,38,0.9);color:white;border:none;border-radius:999px;width:28px;height:28px;" onclick="AdminApp.deleteGalleryImage(${index}, ${itemIndex})">✕</button>` : ''}
+              </div>
+            `).join('')}
+          </div>
+          <div class="gallery-upload-zone" data-block-index="${index}"
+               ondragover="AdminApp.allowDrop(event)"
+               ondragleave="AdminApp.removeDropHover(event)"
+               ondrop="AdminApp.handleGalleryDrop(event)">
+            <strong>Kéo thả ảnh vào đây</strong>
+            <small>Hoặc nhấn để chọn ảnh và upload lên server</small>
+          </div>
+          <input type="file" id="gallery-upload-input-${index}" data-block-index="${index}" multiple accept="image/*" onchange="AdminApp.handleGalleryUploadFiles(event)" hidden />
+          <button class="btn btn-secondary btn-sm" onclick="AdminApp.openGalleryUploadInput(${index})">Chọn ảnh từ máy</button>
+          <small>Ảnh sẽ được lưu vào cơ sở dữ liệu và hiển thị ở gallery.</small>
+        `;
+      case 'text':
+        return `
+          <div class="form-group">
+            <label>Nội dung</label>
+            <textarea onchange="AdminApp.updateBlockField(${index}, 'content', this.value)">${escape(block.content)}</textarea>
+          </div>
+          <small>Hỗ trợ nội dung dài để kể câu chuyện phòng họp.</small>
+        `;
+      case 'highlight':
+        return `
+          ${block.items.map((item, itemIndex) => `
+            <div class="form-group">
+              <label>Điểm ${itemIndex + 1}</label>
+              <input class="form-input" type="text" value="${escape(item.title)}" placeholder="Tiêu đề điểm nổi bật" onchange="AdminApp.updateHighlightItem(${index}, ${itemIndex}, 'title', this.value)" />
+              <input class="form-input" type="text" value="${escape(item.description)}" placeholder="Mô tả ngắn" onchange="AdminApp.updateHighlightItem(${index}, ${itemIndex}, 'description', this.value)" />
+            </div>
+          `).join('')}
+          <button class="btn btn-secondary btn-sm" onclick="AdminApp.addHighlightItem(${index})">+ Thêm điểm nổi bật</button>
+        `;
+      case 'specs':
+        return `
+          ${input('Sức chứa', 'capacity', block.capacity, 'text', '8 người')}
+          ${input('Diện tích', 'area', block.area, 'text', '30m²')}
+          ${input('Vị trí', 'location', block.location, 'text', 'Tầng 5, Tòa nhà The Sun')}
+          ${input('Thiết bị', 'devices', block.devices, 'text', 'Wifi, Máy chiếu, Whiteboard')}
+          ${input('Giá/giờ', 'hourly_price', block.hourly_price, 'text', '250000')}
+          ${input('Giá/ngày', 'daily_price', block.daily_price, 'text', '1800000')}
+        `;
+      case 'seo':
+        return `
+          ${input('Slug', 'slug', block.slug, 'text', 'phong-hop-sang-tao')}
+          ${input('Meta title', 'title', block.title, 'text', 'Tiêu đề SEO')}
+          <div class="form-group">
+            <label>Meta description</label>
+            <textarea onchange="AdminApp.updateBlockField(${index}, 'description', this.value)">${escape(block.description)}</textarea>
+          </div>
+        `;
+      case 'status':
+        return `
+          <div class="form-group">
+            <label><input type="checkbox" ${block.active ? 'checked' : ''} onchange="AdminApp.updateBlockField(${index}, 'active', this.checked)" /> Hoạt động</label>
+          </div>
+          <div class="form-group">
+            <label><input type="checkbox" ${block.featured ? 'checked' : ''} onchange="AdminApp.updateBlockField(${index}, 'featured', this.checked)" /> Featured</label>
+          </div>
+          ${input('Available time', 'available_time', block.available_time, 'text', '08:00 - 18:00')}
+          <small>Trạng thái và khung giờ hiển thị phòng.</small>
+        `;
+      default:
+        return '<div>Block chưa hỗ trợ.</div>';
+    }
+  },
+
+  updateBlockField(index, field, value) {
+    if (!this.roomDesigner.blocks[index]) return;
+    this.pushHistory();
+    this.roomDesigner.blocks[index][field] = value;
+    this.renderPreview();
+  },
+
+  updateGalleryItem(blockIndex, itemIndex, field, value) {
+    const block = this.roomDesigner.blocks[blockIndex];
+    if (!block?.items) return;
+    this.pushHistory();
+    block.items[itemIndex][field] = value;
+    this.renderPreview();
+  },
+
+  addGalleryImage(blockIndex) {
+    const block = this.roomDesigner.blocks[blockIndex];
+    if (!block?.items) return;
+    this.pushHistory();
+    block.items.push({ url: '', caption: '' });
+    this.renderRoomDesigner();
+  },
+
+  updateHighlightItem(blockIndex, itemIndex, field, value) {
+    const block = this.roomDesigner.blocks[blockIndex];
+    if (!block?.items) return;
+    this.pushHistory();
+    block.items[itemIndex][field] = value;
+    this.renderPreview();
+  },
+
+  addHighlightItem(blockIndex) {
+    const block = this.roomDesigner.blocks[blockIndex];
+    if (!block?.items) return;
+    block.items.push({ title: '', description: '' });
+    this.renderRoomDesigner();
+  },
+
+  addBlock(type) {
+    this.pushHistory();
+    const template = this.createBlockTemplate(type);
+    this.roomDesigner.blocks.push(template);
+    this.renderRoomDesigner();
+  },
+
+  addSelectedBlock() {
+    const selector = document.getElementById('block-type-selector');
+    if (!selector) return;
+    this.addBlock(selector.value);
+  },
+
+  createBlockTemplate(type) {
+    switch (type) {
+      case 'hero': return { type: 'hero', title: 'Tiêu đề mới', caption: 'Thêm caption ấn tượng...', image_url: '' };
+      case 'gallery': return { type: 'gallery', items: [{ url: '', caption: '' }] };
+      case 'text': return { type: 'text', content: 'Viết nội dung giới thiệu phong phú.' };
+      case 'highlight': return { type: 'highlight', items: [{ title: 'Điểm nổi bật', description: 'Mô tả ngắn.' }] };
+      case 'specs': return { type: 'specs', capacity: '', area: '', location: '', devices: '', hourly_price: '', daily_price: '' };
+      case 'seo': return { type: 'seo', slug: '', title: '', description: '' };
+      case 'status': return { type: 'status', active: true, featured: false, available_time: '08:00 - 18:00' };
+      default: return { type: 'text', content: 'Nội dung...' };
+    }
+  },
+
+  removeBlock(index) {
+    this.pushHistory();
+    this.roomDesigner.blocks.splice(index, 1);
+    this.renderRoomDesigner();
+  },
+
+  duplicateBlock(index) {
+    const block = this.roomDesigner.blocks[index];
+    if (!block) return;
+    this.pushHistory();
+    const clone = JSON.parse(JSON.stringify(block));
+    this.roomDesigner.blocks.splice(index + 1, 0, clone);
+    this.renderRoomDesigner();
+  },
+
+  moveBlock(fromIndex, toIndex) {
+    this.pushHistory();
+    const blocks = this.roomDesigner.blocks;
+    const [moved] = blocks.splice(fromIndex, 1);
+    blocks.splice(toIndex, 0, moved);
+    this.renderRoomDesigner();
+  },
+
+  initBlockDragAndDrop() {
+    const cards = document.querySelectorAll('#room-blocks-list .block-card');
+    cards.forEach(card => {
+      card.addEventListener('dragstart', (e) => {
+        this.roomDesigner.dragIndex = Number(card.dataset.index);
+        card.classList.add('dragging');
+      });
+      card.addEventListener('dragend', (e) => {
+        card.classList.remove('dragging');
+        this.roomDesigner.dragIndex = null;
+      });
+      card.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+      card.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const targetIndex = Number(card.dataset.index);
+        if (this.roomDesigner.dragIndex !== null && targetIndex !== this.roomDesigner.dragIndex) {
+          this.moveBlock(this.roomDesigner.dragIndex, targetIndex);
+        }
+      });
+    });
+  },
+
+  renderPreview() {
+    const preview = document.getElementById('room-preview-frame');
+    preview.classList.toggle('mobile-preview', this.roomDesigner.previewMode === 'mobile');
+    preview.innerHTML = this.roomDesigner.blocks.map(block => this.renderPreviewBlock(block)).join('');
+  },
+
+  renderPreviewBlock(block) {
+    const sanitize = (value) => String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    const text = (value) => sanitize(value).replace(/\n/g, '<br/>');
+
+    switch (block.type) {
+      case 'hero':
+        return `
+          <section class="preview-section preview-hero" style="background-image:url('${sanitize(block.image_url) || 'https://images.unsplash.com/photo-1503424886304-8a4d8a83e81c?auto=format&fit=crop&w=1200&q=80'}')">
+            <div class="preview-hero-content">
+              <h1 class="preview-hero-title">${sanitize(block.title) || 'Tên phòng'}</h1>
+              <p class="preview-hero-caption">${sanitize(block.caption) || 'Mô tả ngắn hấp dẫn.'}</p>
+            </div>
+          </section>
+        `;
+      case 'gallery':
+        return `
+          <section class="preview-section">
+            <h3>Ảnh phòng</h3>
+            <div class="preview-gallery">
+              ${block.items.map(item => `<img src="${sanitize(item.url) || 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80'}" alt="${sanitize(item.caption)}" />`).join('')}
+            </div>
+          </section>
+        `;
+      case 'text':
+        return `
+          <section class="preview-section preview-text">
+            <div>${text(block.content)}</div>
+          </section>
+        `;
+      case 'highlight':
+        return `
+          <section class="preview-section">
+            <h3>Điểm nổi bật</h3>
+            <div class="preview-card-grid">
+              ${block.items.map(item => `
+                <div class="preview-card">
+                  <h4>${sanitize(item.title)}</h4>
+                  <p>${sanitize(item.description)}</p>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        `;
+      case 'specs':
+        return `
+          <section class="preview-section">
+            <h3>Thông số kỹ thuật</h3>
+            <div class="preview-specs">
+              <div class="preview-specs-item"><strong>Sức chứa</strong>${sanitize(block.capacity)}</div>
+              <div class="preview-specs-item"><strong>Diện tích</strong>${sanitize(block.area)}</div>
+              <div class="preview-specs-item"><strong>Vị trí</strong>${sanitize(block.location)}</div>
+              <div class="preview-specs-item"><strong>Thiết bị</strong>${sanitize(block.devices)}</div>
+              <div class="preview-specs-item"><strong>Giá/giờ</strong>${sanitize(block.hourly_price)} VND</div>
+              <div class="preview-specs-item"><strong>Giá/ngày</strong>${sanitize(block.daily_price)} VND</div>
+            </div>
+          </section>
+        `;
+      case 'seo':
+        return `
+          <section class="preview-section preview-card">
+            <h4>SEO & Meta</h4>
+            <p><strong>Slug</strong>: ${sanitize(block.slug) || 'phong-hop'}</p>
+            <p><strong>Meta title</strong>: ${sanitize(block.title)}</p>
+            <p>${sanitize(block.description)}</p>
+          </section>
+        `;
+      case 'status':
+        return `
+          <section class="preview-section preview-card">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <span style="background:${block.active ? '#DCFCE7' : '#FEE2E2'};color:${block.active ? '#166534' : '#991B1B'};padding:8px 12px;border-radius:999px;font-weight:700;">${block.active ? 'Đang hoạt động' : 'Tạm ẩn'}</span>
+              ${block.featured ? '<span style="background:#FDE68A;color:#92400E;padding:8px 12px;border-radius:999px;font-weight:700;">Featured</span>' : ''}
+            </div>
+            <p style="margin-top:12px;font-size:0.95rem;color:var(--text-mid);">Thời gian hoạt động: ${sanitize(block.available_time)}</p>
+          </section>
+        `;
+      default:
+        return '';
+    }
+  },
+
+  setPreviewMode(mode, button) {
+    this.roomDesigner.previewMode = mode;
+    document.querySelectorAll('.preview-mode-btn').forEach(el => el.classList.remove('active'));
+    if (button) button.classList.add('active');
+    this.renderPreview();
+  },
+
+  previewFullPage() {
+    if (!this.roomDesigner.currentRoomId) {
+      showToast('error', 'Lỗi', 'Hãy lưu phòng trước khi mở chế độ xem trang đầy đủ.');
+      return;
+    }
+    window.open(`/room-detail.html?id=${encodeURIComponent(this.roomDesigner.currentRoomId)}&preview=plain`, '_blank');
+  },
+
+  async saveRoomDesigner() {
+    const hero = this.roomDesigner.blocks.find(b => b.type === 'hero');
+    const specs = this.roomDesigner.blocks.find(b => b.type === 'specs');
+    const status = this.roomDesigner.blocks.find(b => b.type === 'status');
+    const text = this.roomDesigner.blocks.find(b => b.type === 'text');
+
+    const capacity = specs?.capacity ? parseInt(specs.capacity, 10) : null;
+    const pricePerHour = specs?.hourly_price ? parseFloat(specs.hourly_price) : null;
 
     const payload = {
-      name:          document.getElementById('room-name').value.trim(),
-      floor:         parseInt(document.getElementById('room-floor').value) || null,
-      capacity:      parseInt(document.getElementById('room-capacity').value),
-      price_per_hour: parseFloat(document.getElementById('room-price').value),
-      location:      document.getElementById('room-location').value.trim(),
-      description:   document.getElementById('room-description').value.trim(),
-      amenities:     document.getElementById('room-amenities').value
-                       .split(',').map(s => s.trim()).filter(Boolean),
-      admin_note:    document.getElementById('room-admin-note').value.trim()
+      name: hero?.title?.trim() || this.roomDesigner.currentRoomName,
+      capacity,
+      price_per_hour: pricePerHour,
+      location: specs?.location || null,
+      floor: specs?.floor ? parseInt(specs.floor, 10) : null,
+      description: text?.content || hero?.caption || '',
+      amenities: specs?.devices ? specs.devices.split(',').map(s => s.trim()).filter(Boolean) : [],
+      is_available: status?.active ?? true,
+      admin_note: status?.note || null
     };
 
-    if (!payload.name || !payload.capacity || !payload.price_per_hour) {
-      errEl.textContent = 'Vui lòng điền tên phòng, sức chứa và giá';
-      errEl.classList.remove('hidden');
+    if (!payload.name || !capacity || !pricePerHour) {
+      showToast('error', 'Lỗi', 'Vui lòng điền tên phòng, sức chứa và giá/giờ.');
       return;
     }
 
     try {
-      if (id) {
-        await API.adminUpdateRoom(id, payload);
-        showToast('success', 'Đã cập nhật', `Phòng "${payload.name}" đã được cập nhật`);
+      if (this.roomDesigner.currentRoomId) {
+        await API.adminUpdateRoom(this.roomDesigner.currentRoomId, payload);
+        showToast('success', 'Đã cập nhật', `Phòng "${payload.name}" đã được lưu`);
       } else {
-        await API.adminCreateRoom(payload);
-        showToast('success', 'Đã thêm phòng', `Phòng "${payload.name}" đã được tạo`);
+        const res = await API.adminCreateRoom(payload);
+        if (res?.data?.id) {
+          this.roomDesigner.currentRoomId = res.data.id;
+        }
+        showToast('success', 'Đã tạo', `Phòng "${payload.name}" đã được tạo`);
       }
-      this.closeRoomModal();
       this.loadRooms();
     } catch (e) {
-      errEl.textContent = e.message;
-      errEl.classList.remove('hidden');
+      showToast('error', 'Lỗi lưu', e.message);
     }
   },
 
@@ -367,7 +895,7 @@ const AdminApp = {
   async deleteImage(imageId, roomId) {
     if (!confirm('Xóa ảnh này?')) return;
     try {
-      await API.adminDeleteImage(roomId, imageId);
+      await API.adminDeleteImage(imageId);
       document.getElementById(`img-${imageId}`)?.remove();
       showToast('success', 'Đã xóa ảnh', '');
       this.loadRooms();

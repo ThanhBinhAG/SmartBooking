@@ -4,6 +4,10 @@
 ALTER TABLE rooms
 ADD COLUMN IF NOT EXISTS admin_note TEXT;
 
+-- Thêm column updated_at vào rooms nếu chưa có
+ALTER TABLE rooms
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
 -- Cập nhật updated_at trigger cho rooms table nếu chưa có
 DO $$ 
 BEGIN

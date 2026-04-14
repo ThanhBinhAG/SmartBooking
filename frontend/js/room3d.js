@@ -310,14 +310,38 @@ function formatPrice(price) {
 
 function showBookingPanel() {
   const panel = document.getElementById('booking-panel');
-  panel.scrollIntoView({ behavior: 'smooth' });
+  if (panel) {
+    panel.scrollIntoView({ behavior: 'smooth' });
+  }
   // Focus vào input thời gian bắt đầu
   const startInput = document.getElementById('booking-start');
   if (startInput) startInput.focus();
 }
 
+const isPreviewOnlyMode = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('preview') === 'plain' || urlParams.get('mode') === 'preview';
+};
+
 // Khởi chạy khi trang load
 document.addEventListener('DOMContentLoaded', () => {
-  initThreeJS();
+  if (!isPreviewOnlyMode()) {
+    initThreeJS();
+  } else {
+    const viewerPanel = document.querySelector('.viewer-panel');
+    if (viewerPanel) {
+      viewerPanel.style.display = 'none';
+    }
+
+    const equipmentSection = document.getElementById('equipment-section');
+    if (equipmentSection) {
+      equipmentSection.style.display = 'none';
+    }
+
+    const equipmentCart = document.getElementById('equipment-cart');
+    if (equipmentCart) {
+      equipmentCart.style.display = 'none';
+    }
+  }
   loadRoomDetail();
 });

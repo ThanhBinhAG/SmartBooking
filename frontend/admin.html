@@ -121,13 +121,71 @@
       <!-- SECTION: PHÒNG HỌP -->
       <div class="admin-section hidden" id="section-rooms">
         <div class="admin-page-header">
-          <h1 class="admin-page-title">Quản Lý Phòng Họp</h1>
-          <button class="btn btn-primary btn-sm shine" onclick="AdminApp.openRoomModal()">
+          <div>
+            <h1 class="admin-page-title">Thiết kế Phòng Họp</h1>
+            <p class="admin-page-subtitle">Chỉnh sửa nội dung và layout trang chi tiết phòng như editor block, xem trước ngay lập tức.</p>
+          </div>
+          <button class="btn btn-primary btn-sm shine" onclick="AdminApp.openRoomDesigner()">
             ➕ Thêm phòng mới
           </button>
         </div>
-        <div id="rooms-admin-list">
-          <div style="text-align:center;padding:40px;color:var(--text-soft)">⏳ Đang tải...</div>
+
+        <div id="rooms-list-panel">
+          <div id="rooms-admin-list">
+            <div style="text-align:center;padding:40px;color:var(--text-soft)">⏳ Đang tải...</div>
+          </div>
+        </div>
+
+        <div id="room-builder-shell" class="hidden">
+          <div class="room-builder-topbar">
+            <button class="btn btn-secondary btn-sm" onclick="AdminApp.closeRoomDesigner()">
+              ← Trở về danh sách
+            </button>
+            <div class="room-builder-actions">
+              <button class="btn btn-secondary btn-sm" id="room-undo-btn" onclick="AdminApp.undo()" disabled>↶ Undo</button>
+              <button class="btn btn-secondary btn-sm" id="room-redo-btn" onclick="AdminApp.redo()" disabled>↷ Redo</button>
+              <button class="btn btn-secondary btn-sm" onclick="AdminApp.previewFullPage()">Xem trước full page</button>
+              <button class="btn btn-primary btn-sm shine" onclick="AdminApp.saveRoomDesigner()">💾 Lưu & Xuất bản</button>
+            </div>
+          </div>
+
+          <div class="room-builder-layout">
+            <section class="builder-panel">
+              <div class="builder-toolbar">
+                <div>
+                  <div class="toolbar-label">Thư viện block</div>
+                  <h3>Thêm block nhanh</h3>
+                </div>
+                <div class="toolbar-add-block">
+                <select class="form-input" id="block-type-selector">
+                  <option value="hero">Hero Image</option>
+                  <option value="gallery">Gallery</option>
+                  <option value="text">Text</option>
+                  <option value="highlight">Highlight</option>
+                  <option value="specs">Thông số</option>
+                  <option value="seo">SEO</option>
+                  <option value="status">Status</option>
+                </select>
+                <button class="btn btn-secondary btn-sm" onclick="AdminApp.addSelectedBlock()">+ Thêm block</button>
+              </div>
+            </div>
+              <div id="room-blocks-list" class="block-list"></div>
+            </section>
+
+            <aside class="room-preview-panel">
+              <div class="preview-header">
+                <div>
+                  <div class="preview-badge">Live Preview</div>
+                  <h2>Giao diện khách hàng</h2>
+                </div>
+                <div class="preview-mode-switch">
+                  <button class="preview-mode-btn active" data-mode="desktop" onclick="AdminApp.setPreviewMode('desktop', this)">Desktop</button>
+                  <button class="preview-mode-btn" data-mode="mobile" onclick="AdminApp.setPreviewMode('mobile', this)">Mobile</button>
+                </div>
+              </div>
+              <div id="room-preview-frame" class="preview-frame"></div>
+            </aside>
+          </div>
         </div>
       </div>
 

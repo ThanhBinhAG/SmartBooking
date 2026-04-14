@@ -121,7 +121,7 @@ const API = {
     method: 'PUT'
   }),
 
-  adminDeleteImage: (roomId, imgId) => apiCall(`/images/rooms/${roomId}/images/${imgId}`, { method: 'DELETE' }),
+  adminDeleteImage: (imageId) => apiCall(`/admin/images/${imageId}`, { method: 'DELETE' }),
 
   adminGetBookings: (params = {}) => {
     const query = new URLSearchParams(params).toString();
