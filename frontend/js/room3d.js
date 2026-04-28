@@ -257,6 +257,22 @@ async function loadRoomDetail() {
     // Load gallery
     loadRoomGallery(roomId);
 
+    // Hiển thị hero image giống live preview admin
+    const heroSection = document.getElementById('room-hero');
+    const heroTitle = document.getElementById('room-hero-title');
+    const heroCaption = document.getElementById('room-hero-caption');
+    if (room.primary_image_url && heroSection && heroTitle && heroCaption) {
+      heroSection.style.backgroundImage = `url('${room.primary_image_url}')`;
+      heroSection.style.display = 'grid';
+      heroTitle.textContent = room.name;
+      heroCaption.textContent = room.description || 'Phòng họp được thiết kế đẹp và thoáng đãng.';
+    }
+
+    const viewerPanel = document.querySelector('.viewer-panel');
+    if (viewerPanel) {
+      viewerPanel.style.display = 'none';
+    }
+
     // Hiển thị booking panel
     document.getElementById('booking-panel').style.display = 'block';
 
@@ -276,17 +292,11 @@ async function loadRoomGallery(roomId) {
 
     const gallery = document.getElementById('room-gallery');
     gallery.innerHTML = `
-      <h4 style="margin-bottom:10px;font-size:0.9rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.5px;">
-        📷 Hình ảnh thực tế (${images.length} ảnh)
-      </h4>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <h4 class="gallery-heading">📷 Hình ảnh thực tế (${images.length} ảnh)</h4>
+      <div class="preview-gallery">
         ${images.slice(0,4).map((img, i) => `
-          <div style="aspect-ratio:4/3;overflow:hidden;border-radius:8px;cursor:pointer;"
-               onclick="openLightbox(${i}, ${JSON.stringify(images.map(x => x.url)).replace(/"/g, '&quot;')})">
-            <img src="${img.url}" alt="${img.alt_text || ''}"
-                 style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;"
-                 onmouseover="this.style.transform='scale(1.05)'"
-                 onmouseout="this.style.transform='scale(1)'">
+          <div class="gallery-card" onclick="openLightbox(${i}, ${JSON.stringify(images.map(x => x.url)).replace(/"/g, '&quot;')})">
+            <img src="${img.url}" alt="${img.alt_text || ''}" />
           </div>
         `).join('')}
       </div>
@@ -325,23 +335,5 @@ const isPreviewOnlyMode = () => {
 
 // Khởi chạy khi trang load
 document.addEventListener('DOMContentLoaded', () => {
-  if (!isPreviewOnlyMode()) {
-    initThreeJS();
-  } else {
-    const viewerPanel = document.querySelector('.viewer-panel');
-    if (viewerPanel) {
-      viewerPanel.style.display = 'none';
-    }
-
-    const equipmentSection = document.getElementById('equipment-section');
-    if (equipmentSection) {
-      equipmentSection.style.display = 'none';
-    }
-
-    const equipmentCart = document.getElementById('equipment-cart');
-    if (equipmentCart) {
-      equipmentCart.style.display = 'none';
-    }
-  }
   loadRoomDetail();
 });

@@ -10,13 +10,13 @@
 </head>
 <body>
   <div class="room-detail-layout">
-    <!-- Viewer 3D -->
-    <div class="viewer-panel">
-      <canvas id="room-3d-canvas"></canvas>
-      <div class="viewer-controls">
-        <button onclick="resetCamera()">🔄 Reset góc nhìn</button>
-        <span class="hint">🖱️ Kéo để xoay · Cuộn để zoom</span>
-      </div>
+    <div class="room-hero-panel">
+      <section class="preview-hero" id="room-hero" style="display:none;">
+        <div class="preview-hero-content">
+          <h1 id="room-hero-title"></h1>
+          <p id="room-hero-caption"></p>
+        </div>
+      </section>
     </div>
 
     <!-- Thông tin phòng và đặt phòng -->
